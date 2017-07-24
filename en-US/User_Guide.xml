@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "Users_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="User_Guide">
+
+<title>CREAM Command Line Interface Guide</title>
+
+<para>
+This section briefly explains the sequence of operations to be performed by a user to submit and then manage jobs
+on CREAM based CEs, referring to the C++ Command Line Interface (CLI).
+</para>
+
+<section id="Get_Proxy">
+<title>Before starting: get your user proxy</title>
+<para>
+Before using any of the CREAM client commands, it is necessary to have a valid proxy credential available on the client
+machine. You can create it using the <literal>voms-proxy-init</literal> command. If you already have a valid proxy 
+available on your machine just make the <literal>X509_USER_PROXY</literal> environment variable point to it.
+</para>
+
+<para>
+In order to get a proxy certificate issued by VOMS, you should have in the directory <literal>/etc/vomses</literal> the 
+proper VOMS file containing a line as follows:
+<screen>
+"EGEE" "kuiken.nikhef.nl" "15001" "/O=dutchgrid/O=hosts/OU=nikhef.nl/CN=kuiken.nikhef.nl" "EGEE" "22"
+</screen>
+or the corresponding line for your VO. You also need to install the VO related <literal>.lsc</literal> files in the 
+<literal>/etc/grid-security/vomsdir/&lt;VO&gt;</literal> directory. In a standard EMI UI installation, these settings 
+should be already there.
+</para>
+
+<para>
+Make moreover sure you have in the directory <literal>$HOME/.globus</literal> your certificate/key pair, 
+i.e. the following files:
+<itemizedlist>
+<listitem><para>usercert.pem</para></listitem>
+<listitem><para>userkey.pem</para></listitem>
+</itemizedlist>
+</para>
+
+<para>Note that file permissions are important: the two files must have respectively 0600 and 0400 permissions.</para>
+
+<para>
+Then you can issue the VOMS client command (you will be prompted for the pass-phrase):
+<screen>
+$ voms-proxy-init -voms dteam
+Enter GRID pass phrase:
+Your identity: /C=IT/O=INFN/OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto
+Creating temporary proxy ................................................................................. Done
+Contacting  voms2.hellasgrid.gr:15004 [/C=GR/O=HellasGrid/OU=hellasgrid.gr/CN=voms2.hellasgrid.gr] "dteam" Done
+Creating proxy .............................. Done
+
+Your proxy is valid until Sat Apr 30 05:05:49 2011
+
+$ voms-proxy-info -all
+subject   : /C=IT/O=INFN/OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto/CN=proxy
+issuer    : /C=IT/O=INFN/OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto
+identity  : /C=IT/O=INFN/OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto
+type      : proxy
+strength  : 1024 bits
+path      : /tmp/x509up_u500
+timeleft  : 11:59:55
+key usage : Digital Signature, Key Encipherment, Data Encipherment
+=== VO dteam extension information ===
+VO        : dteam
+subject   : /C=IT/O=INFN/OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto
+issuer    : /C=GR/O=HellasGrid/OU=hellasgrid.gr/CN=voms2.hellasgrid.gr
+attribute : /dteam/Role=NULL/Capability=NULL
+attribute : /dteam/italy/Role=NULL/Capability=NULL
+attribute : /dteam/italy/INFN-PADOVA/Role=NULL/Capability=NULL
+timeleft  : 11:59:55
+uri       : voms2.hellasgrid.gr:15004
+</screen>
+</para>
+</section>
+
+
+<section id="CLI_Commands">
+<title>CREAM CLI commands</title>
+<para>
+The most relevant commands to interact with CREAM based CEs are:
+<itemizedlist>
+    <listitem><para><literal>glite-ce-job-submit &lt;jdl_file_1&gt; &lt;jdl_file_2&gt; ... &lt;jdl_file_N&gt;</literal>
+    submits N jobs (N must be >=1) to a CREAM based CE. It requires N JDL files as input and returns N CREAM job identifiers.</para></listitem>
+    <listitem><para><literal>glite-ce-delegate-proxy &lt;delegation_Id&gt;</literal>
+    allows the user to delegate her proxy credential to the CREAM service. 
+    This delegated credential can then be used for job submissions.</para></listitem>
+    <listitem><para><literal>glite-ce-job-status &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    displays information (in particular the states) of N jobs  (N must be >=1) previously submitted to CREAM based CEs.</para></listitem>
+    <listitem><para><literal>glite-ce-job-list &lt;host[:port]&gt;</literal>
+    lists the identifiers of jobs submitted to a CREAM based CE by the user issuing the command.</para></listitem>
+    <listitem><para><literal>glite-ce-job-cancel &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    cancels N jobs (N must be >=1) previously submitted to CREAM based CEs.</para></listitem>
+    <listitem><para><literal>glite-ce-job-suspend &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    suspends the execution of N jobs (N must be >=1) previously submitted to CREAM based CEs.</para></listitem>
+    <listitem><para><literal>glite-ce-job-resume &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    resumes the execution of N jobs (N must be >=1) which have been previously suspended.</para></listitem>
+    <listitem><para><literal>glite-ce-job-output &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    retrieves the output sandbox files of N jobs (N must be >=1) previously submitted to CREAM based CEs.</para></listitem>
+    <listitem><para><literal>glite-ce-job-purge &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    clears N jobs (N must be >=1) from CREAM based CEs. After this operation the purged jobs can&rsquo;t be managed anymore.</para></listitem>
+    <listitem><para><literal>glite-ce-proxy-renew &lt;delegation_Id_1&gt; &lt;delegation_Id_2&gt; ... &lt;delegation_Id_N&gt;</literal>
+    renews N delegations (N must be >=1), and therefore refreshes the proxy of the jobs submitted to 
+    CREAM based CEs using the considered delegations.</para></listitem>
+    <listitem><para><literal>glite-ce-service-info &lt;host[:port]&gt;</literal>
+    returns information about the CREAM service (version, status, etc.).</para></listitem>
+    <listitem><para><literal>glite-ce-enable-submission &lt;host[:port]&gt;</literal>
+    (re-)enables job submissions on the specified CREAM CE.</para></listitem>
+    <listitem><para><literal>glite-ce-disable-submission &lt;host[:port]&gt;</literal>
+    disables job submissions on the specified CREAM CE.</para></listitem>
+    <listitem><para><literal>glite-ce-allowed-submission &lt;host[:port]&gt;</literal>
+    checks if jobs submissions on the specified CREAM CE are allowed or have been disabled.</para></listitem>
+    <listitem><para><literal>glite-ce-job-lease &lt;lease_identifier&gt; --endpoint &lt;cream_endpoint&gt; --leaseTime &lt;lease_time&gt;</literal>
+    create a lease identifier in the CREAM server and associate a time duration to it.</para></listitem>
+</itemizedlist>
+Man pages are available for all the CREAM client commands. You can also access information about the usage of each command by issuing:
+<screen>
+$ <command> --help
+</scree>
+</para>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</chapter>
