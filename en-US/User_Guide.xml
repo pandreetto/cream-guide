@@ -1,8 +1,5 @@
 <?xml version='1.0' encoding='utf-8' ?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "Users_Guide.ent">
-%BOOK_ENTITIES;
-]>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 
 <chapter id="User_Guide">
 
@@ -118,10 +115,256 @@ The most relevant commands to interact with CREAM based CEs are:
 </itemizedlist>
 Man pages are available for all the CREAM client commands. You can also access information about the usage of each command by issuing:
 <screen>
-$ <command> --help
-</scree>
+$ &lt;command&gt; --help
+</screen>
 </para>
 </section>
+
+<section id="Submitting_jobs">
+<title>Submitting jobs to CREAM based CEs</title>
+<para>
+To submit jobs to CREAM based CEs, the command <literal>glite-ce-job-submit</literal> must be used. 
+The <literal>glite-ce-job-submit</literal> command requires as input one or more job description files; 
+each  file describes the job characteristics and requirements through the JDL (Job Description Language). 
+A typical example of a JDL job description file is:
+<screen>
+[
+Type = "Job";
+JobType = "Normal";
+Executable = "myexe";
+StdInput = "myinput.txt";
+StdOutput = "message.txt";
+StdError = "error.txt";
+InputSandbox = {"/users/seredova/example/myinput.txt",
+"/users/seredova/example/myexe"};
+OutputSandbox = {"message.txt", "error.txt"};
+OutputSandboxBaseDestUri = "gsiftp://se.pd.infn.it/data/seredova";
+]
+</screen>
+Such a JDL would make the <literal>myexe</literal> executable be transferred on the remote CREAM CE and be run taking
+the <literal>myinput.txt</literal> file (also copied from the client node) as input. The standard streams of the job are
+redirected to files <literal>message.txt</literal> and <literal>error.txt</literal>, and when job completes its execution
+they are automatically uploaded on <literal>gsiftp://se.pd.infn.it/data/seredova</literal>.
+</para>
+<para>
+A detailed description of the available JDL attributes and of the rules for building correct JDL files is documented in 
+the CREAM JDL <ulink url="http://wiki.italiangrid.org/twiki/bin/view/CREAM/JdlGuide">Guide</ulink>.
+</para>
+<para>
+The jobs submitted to a CREAM based CE are given the delegated credentials of the user who submitted it. 
+These credentials can then be used when operations requiring security support has to be performed by the job.
+</para>
+<para>
+There are two possible options to deal with proxy delegation:
+<itemizedlist>
+    <listitem><para>asking the &ldquo;automatic&rdquo; delegation of the credentials during the submission operation;</para></listitem>
+    <listitem><para>explicitly delegating credentials, and then asking to rely on these previously 
+    delegated credentials on the actual submission operations.</para></listitem>
+</itemizedlist>
+It is highly suggested to rely on this latter mechanism, using the same delegated proxy for multiple job submissions, 
+instead of delegating each time a proxy. Delegating a proxy, in fact, is an operation that can require a non negligible time.
+</para>
+<para>
+The command <literal>glite-ce-delegate-proxy</literal> is the command to be used to explicitly delegate the user credentials
+to a CREAM CE.The following shows an example of job submission, performed explicitly delegating credentials. 
+So first of all the credentials are delegated to a CREAM based CE (whose endpoint is specified with 
+the option <literal>--endpoint</literal> (<literal>-e</literal>):
+<screen>
+$ glite-ce-delegate-proxy -e cream-ce-01.pd.infn.it mydelid
+2006-02-26 15:03:37,286 NOTICE - Proxy with delegation id [mydelid] successfully
+delegated to endpoint [https://cream-ce-01.pd.infn.it:8443//ce-cream/services/CREAMDelegation]
+</screen>
+</para>
+<para>
+The identifier of the delegation is then specified with the <literal>--delegationId</literal> (<literal>-D</literal>) option
+in the job submit operation:
+<screen>
+$ glite-ce-job-submit -D mydelid -r cream-ce-01.pd.infn.it:8443/cream-lsf-grid02 myjob1.jdl myjob2.jdl myjob3.jdl
+</screen>
+The option <literal>-r</literal> (<literal>--resource</literal>) has been used to specify the identifier of the CREAM CE
+where the job has to be submitted to.
+<literal>myjob1.jdl</literal> <literal>myjob2.jdl</literal> <literal>myjob3.jdl</literal> are the 3 JDL files
+describing the jobs to be submitted.
+</para>
+<para>
+The command returns the CREAM job identifiers associated with these jobs 
+(e.g. <literal>https://cream-ce-01.pd.infn.it:8443/CREAM116j9vgnf</literal>) which identify them in clear
+and unique way all over the Grid system scope.
+</para>
+<para>
+In addition the user can associate a lease that she/he has previously created with the command 
+<literal>glite-ce-job-lease</literal> by mean of the option <literal>--leaseId &lt;lease_identifier&gt;</literal>:
+<screen>
+$ glite-ce-job-submit -D mydelid -r cream-ce-01.pd.infn.it:8443/cream-lsf-grid02 --leaseId &lt;my_lease_identifier&gt; myjob1.jdl myjob2.jdl myjob3.jdl
+</screen>
+</para>
+<para>
+To create a lease in the CREAM service, with a certain duration of time (expressed in seconds), issue the command:
+<screen>
+$ glite-ce-job-lease --endpoint cream-27.pd.infn.it --leaseTime 3600 myLID
+You requested lease time [3600] for lease ID [myLID]
+CREAM negotiated the lease time to [3600]
+</screen>
+The above command has created a lease on <literal>cream-27.pd.infn.it</literal> named "myLID" and lasting 1 hour.
+</para>
+</section>
+
+<section id="Monitoring_jobs">
+<title>Monitoring jobs</title>
+<para>
+Passing the CREAM job identifiers returned by the <literal>glite-ce-job-submit</literal> command to
+the <literal>glite-ce-job-status</literal> command, it is possible to monitor the submitted jobs. 
+Several (static and dynamic) information can be shown, depending on the chosen verbosity level. 
+The verbosity level can be 0 (less verbosity), 1 or 2 (most verbosity).
+Please note that specifying 0 as verbosity level means calling on the CREAM service a faster operation 
+than when using 1 or 2 as verbosity level. The most relevant attribute is the job status.
+</para>
+<para>
+The following is an example of job status operation, specifying 1 as verbosity level:
+<screen>
+$ glite-ce-job-status -L 1 https://cream-02.pd.infn.it:8443/CREAM738582717
+****** JobID=[https://cream-02.pd.infn.it:8443/CREAM738582717]
+Current Status = [DONE-FAILED]
+ExitCode = [N/A]
+FailureReason = [lsf_reason=256; Cannot move ISB (${globus_transfer_cmd}
+gsiftp://cream-02.pd.infn.it//CREAMTests/Exe1/ssh1.sh file:///home/infngrid001/home_cream_738582717/CREAM738582717/ssh1.sh):
+error: globus_ftp_client: the server responded with an error 500 500-Command failed. : globus_l_gfs_file_open failed.
+500-globus_xio: Unable to open file //CREAMTests/Exe1/ssh1.sh
+500-globus_xio: System error in open: No such file or directory
+500-globus_xio: A system call failed: No such file or directory 500 End.]
+Grid JobID = [N/A]
+
+Job status changes:
+-------------------
+Status = [REGISTERED] - [Tue 22 Jan 2008 15:55:08] (1201013708)
+Status = [PENDING] - [Tue 22 Jan 2008 15:55:08] (1201013708)
+Status = [IDLE] - [Tue 22 Jan 2008 15:55:11] (1201013711)
+Status = [RUNNING] - [Tue 22 Jan 2008 15:55:18] (1201013718)
+Status = [DONE-FAILED] - [Tue 22 Jan 2008 16:03:10] (1201014190)
+
+Issued Commands:
+-------------------
+*** Command Name = [JOB_REGISTER]
+Command Category = [JOB_MANAGEMENT]
+Command Status = [SUCCESSFULL]
+*** Command Name = [JOB_START]
+Command Category = [JOB_MANAGEMENT]
+Command Status = [SUCCESSFULL]
+</screen>
+In this example it is interesting to note that the job failed (as reported by the <literal>Current Status</literal> field)
+for the problem reported in the <literal>FailureReason</literal> field: the file to be transferred was not found.
+</para>
+<para>
+Instead of explicitly specifying the identifiers of the jobs to monitor, the user can also ask to monitor all her jobs,
+in case specifying conditions (on the submission date and/or on the job status) that must be met.
+For example to monitor all jobs, whose status is DONE-OK or DONE-FAILED, submitted to the <literal>grid005.pd.infn.it</literal>
+CREAM CE between July 23, 2005 10:00 and July 28, 2005 11:00, the following command must be issued:
+<screen>
+$ glite-ce-job-status --all -e grid005.pd.infn.it:8443 --from ’2005-07-23 10:00:00’ --to ’2005-07-28 11:00:00’ -s DONE-OK:DONE-FAILED
+</screen>
+</para>
+</section>
+
+<section id="Getting_output">
+<title>Retrieving output of jobs</title>
+<para>
+User can choose to save the output sandbox (OSB) files on a remote server, or save them in the CREAM CE node. 
+In the latter case these files can then be retrieved using the <literal>glite-ce-job-output</literal> command.
+For example the following command retrieves the output sandbox files of the specified job from the relevant CREAM CE node:
+<screen>
+$ glite-ce-job-output https://cream-38.pd.infn.it:8443/CREAM295728364
+2011-01-29 10:09:50,394 INFO - For JobID [https://cream-38.pd.infn.it:8443/CREAM295728364]
+output will be stored in the dir ./cream-38.pd.infn.it_8443_CREAM295728364
+</screen>
+This command can be used also to retrieve output produced by multiple jobs, by specifying multiple job identifiers
+as command's arguments
+</para>
+</section>
+
+<section id="Getting_jobid">
+<title>Getting job identifiers</title>
+<para>
+If a user is interested to get the identifiers of all her jobs submitted to a specific CREAM CE, she can use the 
+<literal>glite-ce-job-list</literal> command. For example the following command returns the identifiers of all the jobs
+submitted to the specified CREAM CE, owned by the user issuing the command:
+<screen>
+$ glite-ce-job-list grid005.pd.infn.it:8443
+</screen>
+</para>
+</section>
+
+<section id="Cancelling_job">
+<title>Cancelling jobs</title>
+<para>
+In some cases it might be needed to cancel jobs which have been previously submitted to CREAM based CEs. 
+This can be achieved via the <literal>glite-ce-job-cancel</literal> command. E.g., the command:
+<screen>
+$ glite-ce-job-cancel https://grid005.pd.infn.it:8443/CREAM115j5vfnf
+</screen>
+cancels the specified job.
+</para>
+</section>
+
+<section id="Suspending_job">
+<title>Suspending and resuming jobs</title>
+<para>
+A running or idle job can be suspended (i.e. its execution will be stopped), and be resumed (i.e. it will run again) later. 
+This can be achieved with the <literal>glite-ce-job-suspend</literal> and <literal>glite-ce-job-resume</literal> commands.
+The following example shows that after having issued the <literal>glite-ce-job-suspend</literal> command, after a while
+the job status becomes <literal>HELD</literal>.
+<screen>
+$ glite-ce-job-suspend https://cream-ce-01.pd.infn.it:8443/CREAM11a79tnb2
+Are you sure you want to suspend specified job(s) [y/n]: y
+$ glite-ce-job-status -L 0 https://cream-ce-01.pd.infn.it:8443/CREAM11a79tnb2
+****** JobID=[https://cream-ce-01.pd.infn.it:8443/CREAM11a79tnb2]
+Status = [HELD]
+</screen>
+Issuing the =glite-ce-job-resume= command, the job will run/will be idle again:
+<screen>
+$ glite-ce-job-resume https://cream-ce-01.pd.infn.it:8443/CREAM11a79tnb2
+Are you sure you want to resume specified job(s) [y/n]: y
+$ glite-ce-job-status -L 0 https://cream-ce-01.pd.infn.it:8443/CREAM11a79tnb2
+****** JobID=[https://cream-ce-01.pd.infn.it:8443/CREAM11a79tnb2]
+Status = [REALLY-RUNNING]
+</screen>
+</para>
+</section>
+
+<section id="Purging_job">
+<title>Purging jobs</title>
+<para>
+A CREAM job can be monitored (via the =glite-ce-job-status=) even after it has completed its execution. 
+A job gets &ldquo;lost&rdquo; (i.e. it is not possible to monitor or manage it anymore) only when the user who submitted
+it decides to explicitly clear it, or when the CREAM system administrator decides to do this purging operation. 
+A user can purge her own jobs, using the <literal>glite-ce-job-purge</literal> command.
+E.g., after having issued the command:
+<screen>
+$ glite-ce-job-purge https://cream-ce-01.pd.infn.it:8443/CREAM116jbi4o0
+</screen>
+the specified job can&rsquo;t be managed anymore (e.g. it is not possible to check its status anymore).
+</para>
+</section>
+
+<section id="">
+<title>Renewing proxies</title>
+<para>
+It is possible that long jobs may outlive the validity of the initial delegated credentials; if so the job will die prematurely.
+To avoid this it is possible to renew the proxy of jobs submitted to CREAM CEs with the <literal>glite-ce-proxy-renew</literal>
+command. E.g. the following command:
+<screen>
+$ glite-ce-proxy-renew -e cream-ce-01.pd.infn.it:8443 mydelid
+</screen>
+renews the proxy of all the jobs having <literal>mydelid</literal> as delegation id.
+It must be stressed that for jobs submitted to CREAM based CEs via the Workload Management System (WMS),
+proxy renewal is automatically dealt by the middleware.
+</para>
+</section>
+
+
+
+
+
+
 
 
 
