@@ -2,7 +2,9 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 
 <chapter id="User_Guide">
+<title>CREAM User's Guide</title>
 
+<section id="CLI_Guide">
 <title>CREAM Command Line Interface Guide</title>
 
 <para>
@@ -653,27 +655,160 @@ the default value is considered.
 </para>
 </section>
 
+</section><!-- end of CLI_Guide -->
+
+<section id="CE_uses">
+<title>Use specific functionality of the CREAM CE</title>
+
+<section id="Forward_reqs">
+<title>Forward of requirements to the batch system</title>
+
+<para>
+The CREAM CE allows to forward, via tha BLAH component, requirements to the batch system.
+For this purpose the JDL <literal>CERequirements</literal> attribute, described at in the CREAM JDL 
+<ulink url="http://wiki.italiangrid.org/twiki/bin/view/CREAM/JdlGuide#3_27_CERequirements">Guide</ulink>, can be used.
+For direct submissions to the CREAM CE (e.g. jobs submitted to the CREAM CE using the CREAM CLI 
+<literal>glite-ce-job-submit</literal> command) the CeRequirements attribute is supposed to be filled by the end-user.
+For jobs submitted to the CREAM CE via the WMS, the <literal>CeRequirements</literal> attribute is instead filled by the WMS,
+considering the JDL <literal>Requirements</literal> expression and the value of the <literal>CeForwardParameters</literal>
+attribute in the WMS configuration file.
+</para>
+<para>
+For example, if in the user JDL there is :
+<screen>
+Requirements= "other.GlueHostMainMemoryRAMSize > 100 &amp;&amp; other.GlueCEImplementationName==\"CREAM\"";
+</screen>
+and if the WMS configuration file there is:
+<screen>
+CeForwardParameters  = {"GlueHostMainMemoryVirtualSize","GlueHostMainMemoryRAMSize", "GlueCEPolicyMaxCPUTime"};
+</screen>
+in the JDL sent by the WMS to CREAM there will be:
+<screen>
+CeRequirements= "other.GlueHostMainMemoryRAMSize > 100";
+</screen>
+</para>
+<para>
+The <literal>CERequirements</literal> expression received by CREAM is then forwarded to BLAH.
+Basically BLAH manages the <literal>CERequirements</literal> expression setting some environment variables,
+which are available and can be properly used by the <literal>/usr/libexec/xxx_local_submit_attributes.sh</literal> script
+(e.g. <literal>/usr/libexec/pbs_local_submit_attributes.sh</literal> for PBS/Torque,
+<literal>/usr/libexec/lsf_local_submit_attributes.sh</literal> for LSF). This script must be properly created by the site admin.
+</para>
+<para>
+For example, considering the following CeRequirements expression:
+<screen>
+CeRequirements="other.GlueHostMainMemoryRAMSize > 100 &amp;&amp; other.GlueCEStateWaitingJobs &lt;10 &amp;&amp; \
+other.GlueCEImplementationName==\"CREAM\" &amp;&amp; other.GlueHostProcessorClockSpeed >= 2800 &amp;&amp; \
+(Member(\"FDTD\", other.GlueHostApplicationSoftwareRuntimeEnvironment))";
+</screen>
+the following settings will be available in <literal>$USR_LOCATION/libexec/xxx_local_submit_attributes.sh</literal>:
+<screen>
+GlueHostMainMemoryRAMSize_Min='100'
+GlueCEStateWaitingJobs_Max='10'
+GlueCEImplementationName='CREAM'
+GlueHostProcessorClockSpeed_Min='2800'
+GlueHostApplicationSoftwareRuntimeEnvironment='"FDTD"'
+</screen>
+where the value for $USR_LOCATION in a standard installation of a CREAM CE is "/usr".
+What is printed by the <literal>/usr/libexec/xxx_local_submit_attributes.sh</literal> script is automatically added
+to the submit command file. For example if the JDL <literal>CeRequirements</literal> expression is:
+<screen>
+CeRequirements = "(Member(\"FDTD\", other.GlueHostApplicationSoftwareRuntimeEnvironment))";
+</screen>
+and the =/usr/libexec/pbs_local_submit_attributes.sh= is:
+<screen>
+#!/bin/sh
+if [ "$other.GlueHostApplicationSoftwareRuntimeEnvironment" == "FDTD" ]; then
+ echo "#PBS -l software=FDTD"
+fi
+</screen>
+then the PBS submit file that will be used will include:
+<screen>
+...
+...
+# PBS directives:
+#PBS -S /bin/bash
+#PBS -o /dev/null
+#PBS -e /dev/null
+#PBS -l software=FDTD
+....
+....
+</screen>
+where the line:
+<screen>
+#PBS -l software=FDTD
+</screen>
+is set via the <literal>/usr/libexec/pbs_local_submit_attributes.sh</literal> script.
+</para>
+<para>
+Please note that there are no differences if in <literal>CeRequirements</literal> expresssion there is e.g.
+<screen>CeRequirements = other.xyz==\"ABC\"</screen> or: <screen>CeRequirements = "xyz==\"ABC\"";</screen>
+In both cases in <literal>/usr/libexec/xxx_local_submit_attributes.sh</literal> the variable <literal>xyz</literal> will be set.
+As shown above, having <literal>x&gt;a</literal> or <literal>x&gt;=a</literal> doesn't make any difference in the setting of 
+the environment variable <literal>x</literal> in the <literal>/usr/libexec/xxx_local_submit_attributes.sh</literal> script.
+It will be in both cases: <screen> x_Min='a' </screen>
+</para>
+<para>
+Starting with BLAH v. 1.18 it is possible to forward to the batch system also other attributes not included
+in the <literal>CeRequiments</literal> JDL attribute.
+This can be done adding in =/etc/blah.config= the line:
+<screen>
+blah_pass_all_submit_attributes=yes
+</screen>
+In this way the <literal>xxx_local_submit_attributes.sh</literal> will see the following environment variables set:
+<itemizedlist>
+    <listitem><para>gridType</para></listitem>
+    <listitem><para>x509UserProxyFQAN</para></listitem>
+    <listitem><para>uniquejobid</para></listitem>
+    <listitem><para>queue</para></listitem>
+    <listitem><para>ceid</para></listitem>
+    <listitem><para>VirtualOrganisation</para></listitem>
+    <listitem><para>ClientJobId</para></listitem>
+    <listitem><para>x509UserProxySubject</para></listitem>
+</itemizedlist>
+It is also possible to specify that only some attributes must be forwarded in the batch system setting
+in <literal>blah.config</literal> e.g.:
+<screen>
+blah_pass_submit_attributes[0]="x509UserProxySubject"
+blah_pass_submit_attributes[1]="x509UserProxyFQAN"
+</screen>
+</para>
+</section>
+
+</section> <!-- end of CE_uses -->
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<section id="CREAM_states">
+<title>CREAM job states</title>
+<para>
+Here below is provided a brief description of the meaning of each possible state a CREAM job can enter:
+<itemizedlist>
+    <listitem><para><literal>REGISTERED</literal>: the job has been registered but it has not been started yet.</para></listitem>
+    <listitem><para><literal>PENDING</literal> the job has been started, but it has still to be submitted to 
+    the LRMS abstraction layer module (i.e. BLAH).</para></listitem>
+    <listitem><para><literal>IDLE</literal>: the job is idle in the Local Resource Management System (LRMS).</para></listitem>
+    <listitem><para><literal>RUNNING</literal>: the job wrapper, which &ldquo;encompasses&rdquo; the user job, 
+    is running in the LRMS.</para></listitem>
+    <listitem><para><literal>REALLY-RUNNING</literal>: the actual user job (the one specified as Executable in the job JDL)
+    is running in the LRMS.</para></listitem>
+    <listitem><para><literal>HELD</literal>: the job is held (suspended) in the LRMS.</para></listitem>
+    <listitem><para><literal>CANCELLED</literal>: the job has been cancelled.</para></listitem>
+    <listitem><para><literal>DONE-OK</literal>: the job has successfully been executed.</para></listitem>
+    <listitem><para><literal>DONE-FAILED</literal>: the job has been executed, but some errors occurred.</para></listitem>
+    <listitem><para><literal>ABORTED</literal>: errors occurred during the &ldquo;management&rdquo; of the job,
+    e.g. the submission to the LRMS abstraction layer software (BLAH) failed.</para></listitem>
+    <listitem><para><literal>UNKNOWN</literal>: the job is an unknown status.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+The following figure shows the possible job states transitions.
+<mediaobject>
+<imageobject>
+  <imagedata fileref="./images/cream_job_states.png" />
+</imageobject>
+</mediaobject>
+</para>
+</section><!-- end of CREAM_states -->
 
 
 </chapter>
