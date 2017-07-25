@@ -80,26 +80,26 @@ uri       : voms2.hellasgrid.gr:15004
 <para>
 The most relevant commands to interact with CREAM based CEs are:
 <itemizedlist>
-    <listitem><para><literal>glite-ce-job-submit &lt;jdl_file_1&gt; &lt;jdl_file_2&gt; ... &lt;jdl_file_N&gt;</literal>
+    <listitem><para><literal>glite-ce-job-submit &lt;jdl_file_1&gt; ... &lt;jdl_file_N&gt;</literal>
     submits N jobs (N must be >=1) to a CREAM based CE. It requires N JDL files as input and returns N CREAM job identifiers.</para></listitem>
     <listitem><para><literal>glite-ce-delegate-proxy &lt;delegation_Id&gt;</literal>
     allows the user to delegate her proxy credential to the CREAM service. 
     This delegated credential can then be used for job submissions.</para></listitem>
-    <listitem><para><literal>glite-ce-job-status &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    <listitem><para><literal>glite-ce-job-status &lt;job_Id_1&gt; ... &lt;job_Id_N&gt;</literal>
     displays information (in particular the states) of N jobs  (N must be >=1) previously submitted to CREAM based CEs.</para></listitem>
     <listitem><para><literal>glite-ce-job-list &lt;host[:port]&gt;</literal>
     lists the identifiers of jobs submitted to a CREAM based CE by the user issuing the command.</para></listitem>
-    <listitem><para><literal>glite-ce-job-cancel &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    <listitem><para><literal>glite-ce-job-cancel &lt;job_Id_1&gt; ... &lt;job_Id_N&gt;</literal>
     cancels N jobs (N must be >=1) previously submitted to CREAM based CEs.</para></listitem>
-    <listitem><para><literal>glite-ce-job-suspend &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    <listitem><para><literal>glite-ce-job-suspend &lt;job_Id_1&gt; ... &lt;job_Id_N&gt;</literal>
     suspends the execution of N jobs (N must be >=1) previously submitted to CREAM based CEs.</para></listitem>
-    <listitem><para><literal>glite-ce-job-resume &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    <listitem><para><literal>glite-ce-job-resume &lt;job_Id_1&gt; ... &lt;job_Id_N&gt;</literal>
     resumes the execution of N jobs (N must be >=1) which have been previously suspended.</para></listitem>
-    <listitem><para><literal>glite-ce-job-output &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    <listitem><para><literal>glite-ce-job-output &lt;job_Id_1&gt; ... &lt;job_Id_N&gt;</literal>
     retrieves the output sandbox files of N jobs (N must be >=1) previously submitted to CREAM based CEs.</para></listitem>
-    <listitem><para><literal>glite-ce-job-purge &lt;job_Id_1&gt; &lt;job_Id_2&gt; ... &lt;job_Id_N&gt;</literal>
+    <listitem><para><literal>glite-ce-job-purge &lt;job_Id_1&gt; ... &lt;job_Id_N&gt;</literal>
     clears N jobs (N must be >=1) from CREAM based CEs. After this operation the purged jobs can&rsquo;t be managed anymore.</para></listitem>
-    <listitem><para><literal>glite-ce-proxy-renew &lt;delegation_Id_1&gt; &lt;delegation_Id_2&gt; ... &lt;delegation_Id_N&gt;</literal>
+    <listitem><para><literal>glite-ce-proxy-renew &lt;delegation_Id_1&gt; ... &lt;delegation_Id_N&gt;</literal>
     renews N delegations (N must be >=1), and therefore refreshes the proxy of the jobs submitted to 
     CREAM based CEs using the considered delegations.</para></listitem>
     <listitem><para><literal>glite-ce-service-info &lt;host[:port]&gt;</literal>
@@ -157,7 +157,7 @@ These credentials can then be used when operations requiring security support ha
 <para>
 There are two possible options to deal with proxy delegation:
 <itemizedlist>
-    <listitem><para>asking the &ldquo;automatic&rdquo; delegation of the credentials during the submission operation;</para></listitem>
+    <listitem><para>asking the automatic delegation of the credentials during the submission operation;</para></listitem>
     <listitem><para>explicitly delegating credentials, and then asking to rely on these previously 
     delegated credentials on the actual submission operations.</para></listitem>
 </itemizedlist>
@@ -360,9 +360,298 @@ proxy renewal is automatically dealt by the middleware.
 </para>
 </section>
 
+<section id="Handling_job">
+<title>Handling job identifiers</title>
+<para>
+Handling the job identifiers directly quickly becomes tedious. To avoid this, you can make the <literal>glite-ce-job-submit</literal>
+and <literal>glite-ce-job-list</literal> commands append the job Id(s) to a named file using the <literal>--output</literal>
+(<literal>-o</literal>) option. On the other side, the CREAM client commands which take job identifier(s) as argument accept also
+the <literal>--input</literal> (<literal>-i</literal>) option which allows the job identifier(s) to be read from a file.
+The following shows an example:
+<screen>
+$ glite-ce-job-submit -a -r cream-ce-01.pd.infn.it:8443/cream-lsf-grid02 -o idfile myjob.jdl
+https://cream-ce-01.pd.infn.it:8443/CREAM116jbs5b9
+</screen>
+The returned job id got also inserted in the specified file (<literal>idfile</literal>), which can be specified with 
+the <literal>--input</literal> (<literal>-i</literal>) option e.g. with the <literal>glite-ce-job-status</literal> command:
+<screen>
+$ glite-ce-job-status -i idfile
+****** JobID=[https://cream-ce-01.pd.infn.it:8443/CREAM116jbs5b9]
+Status=[REALLY-RUNNING]
+</screen>
+</para>
+</section>
 
+<section id="Restrict_submission">
+<title>Restricting job submissions</title>
+<para>
+In order to prevent that a CREAM CE gets overloaded, the CREAM CE administrator can set a specific policy to disable
+new job submissions when certain conditions are met. If submissions are disabled because of that, if newer job submissions are attempted,
+users will get an error message such as:
+<screen>
+$ glite-ce-job-submit -a -r cream-38.pd.infn.it:8443/cream-pbs-creamtest1 oo.jdl
+MethodName=[jobRegister] ErrorCode=[0] Description=[The CREAM service cannot accept jobs at the moment]
+FaultCause=[Threshold for Load Average(1 min): 30 => Detected value for Load Average(1 min): 31.13]
+Timestamp=[Sat 29 Jan 2011 11:55:18]
+</screen>
+</para>
+<para>
+In order to avoid degrading the performance of the system, the specified policy is not evaluated for each job submission, but instead
+it is evaluated and imposed from time to time (so it might happen that for a short time job submissions are allowed even if the specified
+threshold has been reached).
+CREAM &ldquo;super-users&rdquo; can also disable newer job submissions via the command <literal>glite-ce-disable-submission</literal>. 
+Submissions can then be re-enabled by a CREAM &ldquo;super-user&rdquo; via the command <literal>glite-ce-enable-submission</literal>.
+To check if job submissions on a specific CREAM CE are allowed, the command <literal>glite-ce-allowed-submission</literal> can be used.
+<screen>
+$ glite-ce-disable-submission grid006.pd.infn.it:8443
+Operation for disabling new submissions succeeded
 
+$ glite-ce-allowed-submission grid006.pd.infn.it:8443
+Job Submission to this CREAM CE is disabled
 
+$ glite-ce-enable-submission grid006.pd.infn.it:8443
+Operation for enabling new submissions succeeded
+
+$ glite-ce-allowed-submission grid006.pd.infn.it:8443
+Job Submission to this CREAM CE is enabled
+</screen>
+It must be stressed that if job submissions to a specific CREAM CE are disabled, all other operations (job status, job cancellations, etc.)
+can still be performed.
+</para>
+</section>
+
+<section id="Getting_info">
+<title>Getting information about the CREAM service</title>
+<para>
+It is possible to get information about the CREAM service (interface and service version, status, etc) using 
+the <literal>glite-ce-service-info</literal> command, e.g.:
+<screen>
+$ glite-ce-service-info cream-13.pd.infn.it:8443
+Interface Version = [2.1]
+Service Version = [1.12]
+Description = [CREAM 2]
+Started at = [Tue Nov 10 14:42:12 2009]
+Submission enabled = [YES]
+Status = [RUNNING]
+Service Property = [SUBMISSION_THRESHOLD_MESSAGE]->
+[Threshold for Load Average
+(1 min): 10 => Detected value for Load Average(1 min): 0.03
+Threshold for Load Average(5 min): 10 => Detected value for Load Average(5 min): 0.03
+Threshold for Load Average(15 min): 10 => Detected value for Load Average(15 min): 0.00
+Threshold for Memory Usage: 95 => Detected value for Memory Usage: 57.41%
+Threshold for Swap Usage: 95 => Detected value for Swap Usage: 2.02%
+Threshold for Free FD: 500 => Detected value for Free FD: 204500
+Threshold for tomcat FD: 800 => Detected value for Tomcat FD: 107
+Threshold for FTP Connection: 30 => Detected value for FTP Connection: 1
+Threshold for Number of active jobs: -1 => Detected value for Number of active jobs: 0
+Threshold for Number of pending commands: -1 => Detected value for Number of pending commands: 0
+</screen>
+</para>
+</section>
+
+<section id="CLI_conffile">
+<title>CREAM CLI configuration files</title>
+<para>
+The configuration of the CREAM UI is accomplished via three possible configuration files:
+<itemizedlist>
+    <listitem><para>A general configuration file. This file is looked for in 
+    <literal>/etc/glite_cream.conf</literal></para></listitem>
+    <listitem><para>A VO specific configuration file. This file is looked for in 
+    <literal>/etc/&lt;VO&gt;/glite_cream.conf</literal></para></listitem>
+    <listitem><para>A user specific configuration file. This file is looked for in the following order:
+    <itemizedlist>
+        <listitem><para>The file specified with the <literal>--conf</literal> option of the considered command</para></listitem>
+        <listitem><para>The file referenced by the <literal>$GLITE_CREAM_CLIENT_CONFIG</literal> 
+        environment variable</para></listitem>
+        <listitem><para><literal>$HOME/.glite/&lt;VO&gt;/glite_cream.conf</literal> (if the VO is defined), 
+        or <literal>$HOME/.glite/glite_cream.conf</literal> otherwise</para></listitem>
+    </itemizedlist>
+    </para></listitem>
+</itemizedlist>
+Each of these files is a classad containing definitions. If the same attribute is defined in more configuration file, 
+the definition in the user specific configuration file (if any) is considered. Likewise the definitions in the VO specific
+configuration file have higher priority than the ones specified in the general configuration file.
+It must be noted that one or more (even all) of these three configuration files can be missing.
+</para>
+<para>
+We list here the possible attributes that can be specified in the configuration files:
+<table frame="all">
+<tgroup cols='3'>
+<thead>
+<row><entry>Name</entry><entry>Description</entry><entry>Default</entry></row>
+</thead>
+<tbody>
+<row>
+    <entry>CREAM_URL_PREFIX</entry>
+    <entry>the prefix to the <literal>&lt;hostname&gt;:&lt;port&gt;</literal> to build the CREAM service endpoint</entry>
+    <entry>https://</entry>
+</row>
+<row>
+    <entry>CREAMDELEGATION_URL_PREFIX</entry>
+    <entry>the prefix to the <literal>&lt;hostname&gt;:&lt;port&gt;</literal> to build the CREAM delegation
+    service endpoint</entry>
+    <entry>https://</entry>
+</row>
+<row>
+    <entry>DEFAULT_CREAM_TCPPORT</entry>
+    <entry>the port to be appended to the hostname (if not specified by the user) to build the CREAM and CREAM delegation
+    service endpoint</entry>
+    <entry>8443</entry>
+</row>
+<row>
+    <entry>CREAM_URL_POSTFIX</entry>
+    <entry>the postfix to be appended to the <literal>&lt;hostname&gt;:&lt;port&gt;</literal>
+    to build the CREAM service endpoint</entry>
+    <entry>/ce-cream/services/CREAM2</entry>
+</row>
+<row>
+    <entry>CREAMDELEGATION_URL_POSTFIX</entry>
+    <entry>the postfix to be appended to the <literal>&lt;hostname&gt;:&lt;port&gt;</literal> to build
+    the CREAM delegation service endpoint</entry>
+    <entry>/ce-cream/services/gridsite-delegation</entry>
+</row>
+<row>
+    <entry>JDL_DEFAULT_ATTRIBUTES</entry>
+    <entry>the classad that must be included by default in the user's JDLs</entry>
+    <entry>empty classad</entry>
+</row>
+<row>
+    <entry>STATUS_VERBOSITY_LEVEL</entry>
+    <entry>the default verbosity level to be used for the <literal>glite-ce-job-status</literal> command</entry>
+    <entry>0</entry>
+</row>
+<row>
+    <entry>UBERFTP_CLIENT</entry>
+    <entry>is the pathname of the <literal>uberftp</literal> client executable</entry>
+    <entry>/usr/bin/uberftp</entry>
+</row>
+<row>
+    <entry>SUBMIT_LOG_DIR</entry>
+    <entry>the directory where by default the log file 
+    <literal>glite-ce-job-submit_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal> 
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-job-submit</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>DELEGATE_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-delegate-proxy_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-delegate-proxy</literal> command) is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>STATUS_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-job-status_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the glite-ce-job-status command) is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>LIST_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-job-list_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal> 
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-job-list</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>SUSPEND_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-job-suspend_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-job-suspend</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>RESUME_LOG_DIR</entry>
+    <entry>the directory where by default the log file 
+    <literal>glite-ce-job-resume_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-job-resume</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>CANCEL_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-job-cancel_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-job-cancel</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>JOBOUTPUT_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-job-output_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-job-output</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>PURGE_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-job-purge_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-job-purge</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>ALLOWEDSUB_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-allowed-submission_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-allowed-submission</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>ENABLE_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-enable-submission_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-enable-submission</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>DISABLE_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-disable-submission_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-disable-submission</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>PROXYRENEW_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-proxy-renew_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-proxy-renew</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>GETSERVICEINFO_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-service-info_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-service-info</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+<row>
+    <entry>LEASE_LOG_DIR</entry>
+    <entry>the directory where by default the log file
+    <literal>glite-ce-job-lease_CREAM_&lt;username&gt;_&lt;date&gt;_&lt;time&gt;.log</literal>
+    (created when the <literal>--debug</literal> option is used with the <literal>glite-ce-job-lease</literal> command)
+    is created</entry>
+    <entry>/tmp/glite_cream_cli_logs</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+As mentioned above, if the same attribute is defined in more than a configuration file, the definition in the user specific
+configuration file (if any) has higher priority than the definition in the VO specific configuration file (if any)
+which has higher priority than the definition in the generic configuration file. If an attribute is not defined anywhere,
+the default value is considered.
+</para>
+</section>
 
 
 
