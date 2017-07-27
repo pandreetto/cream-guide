@@ -1,0 +1,901 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+<chapter id="JDL_Guide">
+<title>CREAM JDL Guide</title>
+
+<section id="JDL_Intro">
+<title>Introduction</title>
+<para>
+The Job Description Language (JDL) is a high-level, user-oriented language based on Condor classified advertisements (classads)
+for describing jobs to be submitted to the CREAM CE service. Being the JDL an extensible language the user is allowed to use
+whatever attribute for the description of a request without incurring in errors from the JDL parser. 
+However, only a certain set of attributes, that we will refer as "supported attributes"; from now on, is taken into account by
+the CREAM CE service.
+</para>
+<para>
+Some of the attributes in the JDL are mandatory. If the user does not specify them, CREAM cannot handle the request.
+For the other attributes the system may find a default value if they are necessary for processing the request.
+</para>
+<para>
+Before starting with the detailed attribute description please note that a request description is composed by entries that are
+strings having the format
+<screen>
+attribute = expression;
+</screen>
+and are terminated by the semicolon character. The whole description has to be included between square brackets, 
+i.e. <literal>[ &lt;job descr.&gt; ]</literal>. The termination with the semicolon is not mandatory for the last attribute
+before the closing square bracket ].
+</para>
+<para>
+Attribute expressions can span several lines provided the semicolon is put only at the end of the whole expression.
+Comments must have a sharp character (#) or a double slash (//) at the beginning of each line. Comments spanning multiple lines
+can be specified enclosing the text between "/*" and "*/".
+</para>
+<para>
+Please note that since CREAM exposes a publicly available WSDL interface, no assumption is made in the document
+(unless explicitly specified) about the client tool used to submit the JDL description of the job.
+</para>
+</section>
+
+
+<section id="JDL_proto">
+<title>Request and Job Types</title>
+
+<section id="JDL_type">
+<title>Type</title>
+<para>
+This a string representing the type of the request described by the JDL, e.g.:
+<screen>Type = "Job";</screen>
+For the time being the only possible value is: <literal>Job</literal>
+The value for this attribute is case insensitive. If this attribute is not specified in the JDL description,
+the default value ("Job") will be considered.
+</para>
+</section>
+</section><!-- end of JDL_proto -->
+
+<section id="JDL_attributes">
+<title>Job Attributes Description</title>
+<para>
+This section reports the detailed description of the JDL attributes that can be specified for describing Job requests.
+A sub-section for each attribute is provided.
+</para>
+
+<section id="JDL_JobType">
+<title>JobType</title>
+<para>
+This a string representing the type of the job described by the JDL, e.g.:
+<screen>JobType = "Normal";</screen>
+At least for the time being the only possible value is: <literal>Normal</literal>.
+This attribute only makes sense when the Type attribute equals to "Job". The value for this attribute is case insensitive.
+If not specified in the JDL, it will be set to "Normal"
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: Normal</emphasis></para>
+</section>
+
+<section id="JDL_Executable">
+<title>Executable</title>
+<para>
+This is a string representing the executable/command name. The user can specify an executable that lies already on the remote CE
+and in this case the absolute path, possibly including environment variables referring to this file should be specified, e.g.:
+<screen>Executable = "usr/local/java/j2sdk1.4.0_01/bin/java";</screen> or: <screen>Executable = "$JAVA_HOME/bin/java";</screen>
+The other possibility is to provide either an executable located on a remote gridFTP server accessible by the user
+(HTTPS servers are also supported but this requires to have the GridSite =htcp= client command installed on the WN).
+In both cases the executable file will be staged from the original location to the Computing Element WN.
+In both cases only the file name has to be specified as executable. The URI of the executable should be then listed in
+the InputSandbox attribute expression to make it be transferred. E.g. respectively:
+<screen>
+Executable = "cms_sim.exe";
+InputSandbox = {"file:///home/edguser/sim/cms_sim.exe", ...};
+</screen>
+Or:
+<screen>
+Executable = "cms_sim.exe";
+InputSandbox = {"gsiftp://neo.datamat.it:5678/tmp/cms_sim.exe", ...};
+</screen>
+Also descriptions as follows:
+<screen>
+Executable = "cms_sim.exe";
+InputSandbox = {"/home/edguser/sim/cms_sim.exe", ... };
+</screen>
+are accepted and interpreted as in the first case, i.e. the executable file is available on the local file system.
+</para>
+<para>
+It is important to remark that if the job needs for the execution some command line arguments, they have to be
+specified through the =Arguments= attribute. This attribute is mandatory.
+</para>
+<para>
+<emphasis>Mandatory: Yes</emphasis>
+</para>
+</section>
+
+<section id="JDL_Arguments">
+<title>Arguments</title>
+<para>
+This is a string containing all the job command line arguments. E.g. an executable sum that has to be started as:
+<screen>$ sum  N1 N2 -out result.out</screen>
+is described by:
+<screen>
+Executable = "sum";
+Arguments = "N1 N2 -out result.out";
+</screen>
+If you want to specify a quoted string inside the Arguments then you have to escape quotes with the \ character.
+E.g. when describing a job like:
+<screen>$ grep -i "my name" *.txt</screen>
+you will have to specify:
+<screen>
+Executable = "/bin/grep";
+Arguments = "-i \"my name\" *.txt";
+</screen>
+</para>
+<para>
+Analogously, if the job takes as argument a string containing a special character (e.g. the job is the tail command issued on
+a file whose name contains the ampersand character, say file1&amp;file2), since on the shell line you would have to write:
+<screen>$ tail -f file1\&amp;file2 </screen>
+in the JDL you&rsquo;ll have to write:
+<screen>
+Executable = "/usr/bin/tail";
+Arguments = "-f file1\\\&amp;file2";
+</screen>
+i.e. a \ for each special character. In general, special characters such as:
+<screen>&amp;, |, &gt;, &lt; </screen>
+are only allowed if specified inside a quoted string or preceded by triple \. The character ` cannot be specified in the JDL.
+</para>
+<para>
+Some other guidelines for the management of special characters:
+<itemizedlist>
+    <listitem><para>If the arguments string contains one or more spaces, the string must be specified
+    in single quotes</para></listitem>
+    <listitem><para>If the arguments string contains single quotes, then the string must be specified
+    in double quotes (which must be escaped)</para></listitem>
+    <listitem><para>If the arguments string contains spaces and single quotes, then the string must be
+    specified in double quotes (which must be escaped)</para></listitem>
+    <listitem><para>the number of the backquote characters must be an even number</para></listitem>
+</itemizedlist>
+Some examples:
+<screen>
+Arguments = "\"Problematic character is: '\" " ;
+
+Arguments = "-o '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=romanov/CN=427293/CN=Vladimir Romanovskiy' \"It's sunny \"" ;
+
+Arguments = "-o \"'option'\"";
+</screen>
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_StdInput">
+<title>StdInput</title>
+<para>
+This is a string representing the standard input of the job. . This means that the job is run as follows:
+<screen>$ executable &lt; &lt;standard input file&gt;</screen>
+It can be an absolute path possibly including environment variables (wild cards are instead not allowed),
+i.e. it is already available on the CE, e.g.
+<screen>StdInput = "/var/tpm/jobInput";</screen>
+or just a file name, e.g.
+<screen>StdInput = "myjobInput";</screen>
+and this means that file needs to be made available on the WN where the job is run. 
+Therefore the standard input file has to be added to the InputSandbox file list so that it will be downloaded
+on the WN. The same rules described for the Executable attribute apply to StdInput.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_StdOutput">
+<title>StdOutput</title>
+<para>
+This is a string representing the file name where the standard output of the job is saved. The user can specify either
+a file name or a relative path (with respect to the job working directory on the WN), e.g.:
+<screen>
+StdOutput = "myjobOutput";
+
+StdOutput = "event1/myjobOutput";
+</screen>
+Wild cards are not allowed. The value specified for StdError can be the same as the one for StdOutput:
+this means that the two standard streams of the job are saved in the same file. The user can choose to have this file
+staged automatically on a GridFTP server specifying a URI for that file in the OutputSandbox attribute expression. E.g.:
+<screen>
+StdOutput = "myjobOutput";
+OutputSandbox = {
+"gsiftp://fox.infn.it:5678/home/gftp/myjobOutput",
+...
+};
+</screen>
+indicates that <literal>myjobOutput</literal> when the job has completed its execution has to be transferred on
+<literal>gsiftp://fox.infn.it:5678</literal> in the <literal>/home/gftp</literal> directory.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_StdError">
+<title>StdError</title>
+<para>
+This is a string representing the file name where the standard error of the job is saved. The user can specify
+either a file name or a relative path (with respect to the job working directory on the WN), e.g.:
+<screen>
+StdError = "myjobError";
+
+StdError = "event1/myjobError";
+</screen>
+Wild cards are not allowed. The value specified for StdError can be the same as the one for StdOutput:
+this means that the two standard streams of the job are saved in the same file. The user can choose to have
+this file staged automatically on a GridFTP server specifying a URI for that file in the OutputSandboxDestURI
+attribute expression The same rules as for the StdOutput apply to StdError.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_InputSandbox">
+<title>InputSandbox</title>
+<para>
+This is a string or a list of strings identifying the list of files available on the file system of
+the client (UI) machine and/or on an accessible gridFTP server (HTTPS servers are also supported but
+this requires to have the GridSite htcp client command installed on the WN) needed by the job for running.
+These files hence have to be transferred to the WN before the job is started. Wildcards and environment
+variables are admitted in the specification of this attribute only if the submission takes place through
+a client able to resolve them locally before passing the JDL to the CREAM service (e.g.
+this is the case for the CREAM CLI). Admitted wildcard patterns are the ones supported by the Linux glob
+function. One can remove the special meaning of the characters: '?', '*', and '[' by preceding them by 
+a backslash.
+</para>
+<para>
+File names can be provided as URI on a gridFTP/HTTPS server, simple file names, absolute paths and relative paths
+with respect to the current UI working directory. The InputSandbox file list cannot contain two or more files
+having the same name (even if in different paths) as when transferred in the job's working directory on
+the WN they would overwrite each other. This attribute can also be used to accomplish executable and standard input
+staging to the CE where job execution takes place as explained above. The InputSandbox attribute meaning is strictly
+coupled with the value of the InputSandboxBaseURI defined in the following that specifies a common location on a
+gridFTP/HTTPS server where files in the InputSandbox not specified as URI are located.
+</para>
+<para>
+Support for file transfer from gridftp servers running using user credentials instead of host credentials is also
+provided1. In this case the distinguish name of such user credentials must be specified in the URI using:
+<screen>?DN=&lt;distinguish name&gt;</screen>
+as shown in the example below.
+</para>
+<para>
+Here below follows an example of InputSandbox setting:
+<screen>
+InputSandbox = {
+"/tmp/ns.log", 
+"mytest.exe",
+"myscript.sh",
+"data/event1.txt",
+"gsiftp://neo.datamat.it:5678/home/fpacini/cms_sim.exe ",
+"file:///tmp/myconf",                      
+"gsiftp://lxsgaravatto.pd.infn.it:47320/etc/fstab?DN=/C=IT/O=INFN/OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto"
+};
+InputSandboxBaseURI = "gsiftp://matrix.datamat.it:5432/tmp";
+</screen>
+</para>
+<para>
+It means that:
+<itemizedlist>
+    <listitem><para><literal>/tmp/ns.log</literal> is located on the UI machine local file system</para></listitem>
+    <listitem><para><literal>mytest.exe</literal> , <literal>myscript.sh</literal> and 
+    <literal>data/event1.txt</literal> are available on <literal>gsiftp://matrix.datamat.it:5432</literal> in 
+    the <literal>/tmp</literal> directory</para></listitem>
+    <listitem><para><literal>/tmp/myconf</literal> is located on the user local file system
+    (explicitly specified using the file:// prefix)</para></listitem>
+    <listitem><para><literal>/etc/fstab</literal> is available on <literal>gsiftp://lxsgaravatto.pd.infn.it:47320</literal>
+    which is a gridftp server running using user credentials (with the specified distinguish name)</para></listitem>
+</itemizedlist>
+If the InputSandboxBaseURI is not specified than also <literal>mytest.exe</literal>, <literal>myscript.sh</literal>
+and <literal>data/event1.txt</literal> would be interpreted as located on the user local file system.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_InputSandboxBaseURI">
+<title>InputSandboxBaseURI</title>
+<para>
+This is a string representing the URI on a gridFTP server (HTTPS servers are also supported but this requires to have
+the GridSite htcp client command installed on the WN) where the InputSandbox files that have been specified as simple
+file names and absolute/relative paths are available for being transferred on the WN before the job is started. E.g.
+<screen>
+InputSandbox = {
+ ...
+ "data/event1.txt",
+ ...
+ };
+InputSandboxBaseURI = "gsiftp://matrix.datamat.it:5432/tmp";
+</screen>
+makes CREAM consider <screen>"gsiftp://matrix.datamat.it:5432/tmp/data/event1.txt"</screen> for the transfer on the WN.
+</para>
+<para>
+Support for file transfer from gridftp servers running using user credentials instead of host credentials is also
+provided1. In this case the distinguish name of such user credentials must be specified in the URI using:
+<screen>?DN=&lt;distinguish name&gt;</screen> as shown in the example below. E.g.
+<screen>
+InputSandbox = {
+ ...
+ "data/event2.txt",
+ ...
+ };
+InputSandboxBaseURI  = "gsiftp://lxsgaravatto.pd.infn.it:47320/tmp?DN=/C=IT/O=INFN/OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto";
+</screen>
+makes CREAM consider
+<screen>
+"gsiftp://lxsgaravatto.pd.infn.it:47320/tmp/data/event2.txt" 
+</screen>
+for the transfer on the WN, where that gridftp server has been started using user credentials
+(with the specified distinguish name)
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_OutputSandbox">
+<title>OutputSandbox</title>
+<para>
+This is a string or a list of strings identifying the list of files generated by the job on the WN at runtime, which
+the user wants to save. This attribute can be combined with the OutputSandboxDestURI or the OutputSandboxBaseDestURI
+to have, upon job completion, the output directly copied to specified locations running a gridFTP server (HTTPS servers
+are also supported but this requires to have the GridSite htcp client command installed on the WN).
+Wildcards are admitted in the specification of this attribute only if the OutputSandboxBaseDestURI attribute is used
+along with the OutputSandbox attribute. Admitted wildcard patterns are the ones supported by the Linux glob function.
+One can remove the special meaning of the characters: '? ', '*' and '[' by preceding them by a backslash.
+</para>
+<para>
+File names can be provided as simple file names or relative paths with respect to the current working directory on
+the executing WN. The OutputSandbox file list should not contain two or more files having the same name (even if in
+different paths).
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_OutputSandboxDestURI">
+<title>OutputSandboxDestURI</title>
+<para>
+This is a string or a list of strings representing the URI(s) on a gridFTP/HTTPS server where the files listed in
+the OutputSandbox attribute have to be transferred at job completion.
+The OutputSandboxDestURI list contains for each of the files specified in the OutputSandbox list the URI (including
+the file name) where it has to be transferred at job completion. Support for file transfer to gridftp servers running
+using user credentials instead of host credentials is also provided1. In this case the distinguish name of such user
+credentials must be specified in the URI using: <screen>?DN=&lt;distinguish name&gt;</screen> as shown in the example below.
+E.g.
+<screen>
+OutputSandbox = {
+"myjobOutput",
+"run1/event1",
+"run2/event2",
+};
+
+OutputSandboxDestURI = {
+"gsiftp://matrix.datamat.it:5432/tmp/myjobOutput ",
+"gsiftp://grid003.ct.infn.it:6789/home/cms/event1",
+"gsiftp://lxsgaravatto.pd.infn.it:47320/tmp/event2?DN=/C=IT/O=INFN/
+OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto"
+};
+</screen>
+makes CREAM transfer respectively:
+<itemizedlist>
+    <listitem><para><literal>myjobOutput</literal> on <literal>matrix.datamat.it</literal> in the directory 
+    <literal>/tmp</literal></para></listitem>
+    <listitem><para><literal>event1</literal> on <literal>grid003.ct.infn.it</literal> in the directory
+    <literal>/home/cms</literal></para></listitem>
+    <listitem><para><literal>event2</literal> on <literal>lxsgaravatto.pd.infn.it</literal>
+    (gridftp server running using user credentials, with the specified distinguish name) in the directory
+    <literal>/tmp</literal></para></listitem>
+</itemizedlist>
+Specifying the URI <literal>gsiftp://localhost</literal>, the OutputSandboxFile is saved in the gridftp server
+of the CREAM CE, as shown in the following example:
+<screen>
+OutputSandbox = {
+"file1",
+"file2",
+};
+OutputSandboxDestURI = {
+"gsiftp://localhost/file1",
+"gsiftp://grid003.ct.infn.it:6789/home/cms/file2"
+};
+</screen>
+</para>
+<para>
+In the above example <literal>file1</literal> is saved on the gridftp server of the CREAM CE, while
+<literal>file2</literal> is saved on <literal>grid003.ct.infn.it</literal> (directory <literal>/home/cms</literal>).
+The OutputSandboxDestURI list must have the same cardinality as the OutputSandbox list, otherwise the JDL will be
+considered as invalid. Note that the file name specified in the OutputSandbox can be different from the corresponding
+destination file name specified in the OutputSandboxBaseDestURI. The OutputSandboxDestURI attribute and the
+OutputSandboxBaseDestURI cannot be specified together in the same JDL. One (and only one) among the OutputSandboxDestURI
+and OutputSandboxBaseDestURI attributes must be specified if the OutputSandbox attribute has been specified
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_OutputSandboxBaseDestURI">
+<title>OutputSandboxBaseDestURI</title>
+<para>
+The OutputSandboxBaseDestURI attribute is a string representing the base URI on a gridFTP server, i.e. a directory
+on the server, where the files listed in the OutputSandbox attribute have to be transferred at job completion.
+HTTPS servers are also supported but this requires to have the GridSite htcp client command installed on the WN.
+All the OutputSandbox files are transferred to the location specified by the URI with the same names (only names in
+a flat directory) as the ones specified in the OutputSandbox. E.g.:
+<screen>
+OutputSandbox = {
+"myjobOutput",
+"run1/event1",
+};
+OutputSandboxBaseDestURI = "gsiftp://matrix.datamat.it:5432/tmp";
+</screen>
+makes CREAM transfer both files in the <literal>/tmp</literal> directory of the gridFTP server
+<literal>matrix.datamat.it</literal> (note that <literal>event1</literal> will go in <literal>/tmp</literal> and not
+in <literal>/tmp/run1</literal>).
+</para>
+<para>
+Support for file transfer to gridftp servers running using user credentials instead of host credentials is also provided1.
+In this case the distinguish name of such user credentials must be specified in the URI using:
+<screen>?DN=&lt;distinguish name&gt;</screen> as shown in the example below. E.g.
+<screen>
+OutputSandbox = {
+"myjobOutput",
+"run1/event1",
+};
+OutputSandboxBaseDestURI = "gsiftp://lxsgaravatto.pd.infn.it:47320/tmp?DN=/C=IT/O=INFN/OU=Personal Certificate/L=Padova/CN=Massimo Sgaravatto";
+</screen>
+makes CREAM transfer both files in the <literal>/tmp</literal> directory of the gridFTP server <literal>lxsgaravatto.pd.infn.it</literal>
+(running using user credentials, with the specified distinguish name).
+</para>
+<para>
+Specifying the URI =gsiftp://localhost=, the OutputSandboxFile is saved in the gridftp server of the CREAM CE, as shown
+in the following example:
+<screen>
+OutputSandbox = {
+"file1",
+"file2",
+};
+OutputSandboxBaseDestURI = "gsiftp://localhost";
+</screen>
+In the above example <literal>file1</literal> and <literal>file2</literal> are saved on the gridftp server of the CREAM CE.
+The OutputSandboxBaseDestURI attribute and the OutputSandboxDestURI cannot be specified together in the same JDL.
+One (and only one) among the OutputSandboxDestURI and OutputSandboxBaseDestURI attributes must be specified if the
+OutputSandbox attribute has been specified.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_Prologue">
+<title>Prologue</title>
+<para>
+The Prologue attribute is a string representing the executable/script name of the prologue. The prologue is an executable
+run within the CREAM job wrapper before the user job is started. It can be used for purposes ranging from
+application-specific checks that the job environment has been correctly set on the WN to actions like data transfers,
+database updates or MPI pre script. If the prologue fails the job wrapper terminates. The rules for specification of the
+Prologue attributes and its relationship with the InputSandbox attribute are exactly the same already described for
+the Executable attribute.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_PrologueArguments">
+<title>PrologueArguments</title>
+<para>
+The PrologueArguments attribute is a string containing all the prologue executable command line arguments.
+All the rules reported in the description of the Arguments attribute also apply to the PrologueArguments attribute.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_Epilogue">
+<title>Epilogue</title>
+<para>
+The Epilogue attribute is a string representing the executable/script name of the epilogue. The epilogue is
+an executable/script run within the CREAM job wrapper after the user job completion. It can be used for purposes
+ranging from application-specific checks that the job performed correctly to actions like data transfers, database
+updates or MPI post script. The rules for specification of the Epilogue attributes and its relationship with
+the InputSandbox attribute are exactly the same already described for the Executable attribute.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_EpilogueArguments">
+<title>EpilogueArguments</title>
+<para>
+The EpilogueArguments attribute is a string containing all the epilogue executable command line arguments.
+All the rules reported in the description of the Arguments attribute also apply to the EpilogueArguments attribute.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_Environment">
+<title>Environment</title>
+<para>
+This is a list of string representing environment settings that have to be performed on the execution machine and are
+needed by the job to run properly. The JobWrapper on the Worker Node performs these settings just before the job is
+started. Each item of the list is an equality <literal>'VAR_NAME=VAR_VALUE'</literal>. E.g.:
+<screen>
+Environment  = {
+  "JOB_LOG_FILE=/tmp/myjob.log",
+  "ORACLE_SID=edg_rdbms_1",
+  "JAVABIN=/usr/local/java"
+};
+</screen>
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_PerusalFileEnable">
+<title>PerusalFileEnable</title>
+<para>
+The PerusalFileEnable attribute is a Boolean attribute that allows enabling the job file perusal support in CREAM.
+File perusal can be used when jobs are submitted to CREAM by the WMS, but it is possible to use this functionality also
+for jobs submitted directly to CREAM. When this attribute is set to true, i.e.
+<screen>
+PerusalFileEnable = true;
+</screen>
+the user can inspect, while the job is running, the files generated by the job on the WN. This is achieved by uploading
+on a location specified by the attribute PerusalFilesDestURI, at regular time intervals, chunks of the files (specified by
+the attribute PerusalListFileURI) generated by the job on the WN. The PerusalFileEnable attribute is not mandatory.
+If not specified in the JDL it is assumed to be set to false.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: False</emphasis></para>
+</section>
+
+<section id="JDL_PerusalTimeInterval">
+<title>PerusalTimeInterval</title>
+<para>
+The PerusalTimeInterval attribute is a positive integer representing the difference in seconds between two subsequent
+saving (and upload on the location specified by the attribute PerusalFilesDestURI) of the job files generated by
+the job on the WN. Specifying e.g. <screen>PerusalTimeInterval = 10;</screen>
+makes the CREAM JobWrapper save the job files specified through the attribute PerusalListFileURI each 10 seconds and
+upload them on location specified by the attribute PerusalFilesDestURI, so that they can be inspected by the user.
+</para>
+<para><emphasis>Mandatory: No (unless PerusalFileEnable is true)</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_PerusalFilesDestURI">
+<title>PerusalFilesDestURI</title>
+<para>
+The PerusalFilesDestURI attribute is a string representing the URI of the location on a gridFTP or HTTPS server
+(HTTPS servers are also supported but this requires to have the GridSite htcp command installed on the WN) where
+the chunks of files generated by the running job on the WN and specified through the attribute PerusalListFileURI
+have to be copied. E.g. <screen> PerusalFilesDestURI = gsiftp://ghemon.cnaf.infn.it/home/glite/peek </screen>
+</para>
+<para><emphasis>Mandatory: No (unless PerusalFileEnable is true)</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_PerusalListFileURI">
+<title>PerusalListFileURI</title>
+<para>
+The PerusalListFileURI attribute is a string representing the URI of the file on a gridFTP server, containing the list
+of files (one for each line), that must be saved and uploaded on the location specified by the attribute
+PerusalFilesDestURI at regular time intervals. E.g.
+<screen>PerusalListFileURI = "gsiftp://ghemon.cnaf.infn.it/peek/files2peek";</screen>
+</para>
+<para><emphasis>Mandatory: No (unless PerusalFileEnable is true)</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_BatchSystem">
+<title>BatchSystem</title>
+<para>
+This is a string representing the Local Resource Management System (LRMS), that is the batch system type
+(e.g. LSF, PBS, etc.) of the target CREAM CE. Here below follows an example for this attribute:
+<screen>BatchSystem = "pbs";</screen>
+This attributes is mandatory but can be omitted if the CREAM CLI is used, since it retrieves this attribute
+from the CEID and automatically fills the JDL.
+</para>
+<para><emphasis>Mandatory: Yes</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_QueueName">
+<title>QueueName</title>
+<para>
+This is a string representing the queue name in the Local Resource Management System (LRMS) where the job has to be
+submitted on the target CREAM CE. Here below follows an example for this attribute:
+<screen>QueueName = "long";</screen>.
+This attributes is mandatory but can be omitted if the CREAM CLI is used, since it retrieves this attribute
+from the CEID and automatically fills the JDL.
+</para>
+<para><emphasis>Mandatory: Yes</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_CPUNumber">
+<title>CPUNumber</title>
+<para>
+The CpuNumber attribute is an integer greater than 1 specifying the number of CPUs needed. This attribute can be used
+in particular for MPI jobs. Please note that this attributes allows allocating the specified number of CPUs.
+Then it is up to the job using them to run the job (e.g. via mpistart). An example of the JDL setting is:
+<screen>CpuNumber = 5;</screen>
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: 1</emphasis></para>
+</section>
+
+<section id="JDL_SMPGranularity">
+<title>SMPGranularity</title>
+<para>
+The SMPGranularity attribute is an integer greater than 0 specifying the number of cores any host involved in the
+allocation has to dedicate to the considered job. This attribute can&rsquo;t be specified along with the Hostnumber
+attribute when WholeNodes is false.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_GPUNumber">
+<title>GPUNumber</title>
+<para>
+------------------------- TODO ---------------------------------
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_GPUModel">
+<title>GPUModel</title>
+<para>
+------------------------- TODO ---------------------------------
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_WholeNodes">
+<title>WholeNodes</title>
+<para>
+The WholeNodes attribute is a boolean that indicates whether whole nodes should be used exclusively or not.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: False</emphasis></para>
+</section>
+
+<section id="JDL_HostNumber">
+<title></title>
+<para>
+HostNumber is an integer indicating the number of nodes the user wishes to obtain for his job. This attribute can't be
+specified along with the SMPGranularity attribute when WholeNodes is false. Please note that <literal>HostNumber</literal>
+shouldn't be greater than <literal>CpuNumber</literal>
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_CERequirements">
+<title>CERequirements</title>
+<para>
+The CERequirements attribute is a Boolean ClassAd expression that uses C-like operators. It represents job requirements
+on resources. Properly configuring the BLAH software, it is possible to instruct the Local Resource Management System
+to select the most appropriate Worker Node to run the considered job. The CERequirements expression can contain attributes
+that describe the CE which are prefixed with <literal>other.</literal>.
+This is an example of CERequirements expression:
+<screen>
+CERequirements = "other.GlueCEPolicyMaxCPUTime &gt;= 100 &amp;&amp; other.GlueHostMainMemoryRAMSize &gt; 2000"; 
+</screen>
+</para>
+<para>
+The CERequirements attribute can be used when jobs are submitted directly to a CREAM based CE, while for jobs submitted
+to a CREAM based CE via the WMS, the CERequirements expression is automatically filled by the WMS considering the user's
+<literal>Requirements</literal> expression, and the value of the <literal>CeForwardParameters</literal> attribute in the
+WMS configuration file.</para>
+
+<para><emphasis>TODO: insert link to "Forward of requirements to the batch system"</emphasis></para>
+
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_MWVersion">
+<title>MWVersion</title>
+<para>
+The MWversion attribute is a string whose value is given to the environment value <literal>EDG_MW_VERSION</literal>,
+defined for the job immediately when it arrives on the WN (i.e. it is not defined in the job wrapper). There can be
+hooks on the WN which detect this (before any <literal>/etc/profile.d</literal> scripts are run) and set up
+the appropriate environment for a job.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_OutputData">
+<title>OutputData</title>
+<para>
+This attribute allows the user to ask for the automatic upload and registration to the Replica Catalog of datasets
+produced by the job on the WN. Through this attribute it is possible to indicate for each output file the LFN (Logical File
+Name) to be used for registration and the SE (Storage Element) on which the file has to be uploaded.
+The OutputData attribute is not mandatory.
+</para>
+<para>
+OutputData is a list of classads where each classad contains the following three attributes:
+<itemizedlist>
+    <listitem><para><literal>OutputFile</literal></para></listitem>
+    <listitem><para><literal>StorageElement</literal></para></listitem>
+    <listitem><para><literal>LogicalFileName</literal></para></listitem>
+</itemizedlist>
+These three attributes are only admitted if members of one of the classads composing OutputData.
+They cannot be specified independently in the job JDL.
+Here below follows an example of the !OutputData attribute:
+<screen>
+OutputData = {
+[
+            OutputFile = "dataset_1.out ";
+            LogicalFileName = "lfn:/test/result1";
+ ],
+[
+            OutputFile = "dataset_2.out ";
+            StorageElement = "se001.cnaf.infn.it";
+ ],
+]
+            OutputFile = "cms/dataset_3.out";
+            StorageElement = "se012.to.infn.it";
+            LogicalFileName = "lfn:/cms/outfile1";
+ ],
+[
+            OutputFile = "dataset_4.out ";
+ ]
+		};
+</screen>
+</para>
+<para>
+If the attribute OutputData is found in the JDL then the JobWrapper at the end of the job calls the Data Management
+service that copies the file from the WN onto the specified SE and registers it with the given LFN. If the specified
+LFN is already in use, the DM service registers the file with a newly generated identifier GUID (Grid Unique Identifier).
+
+During this process the JobWrapper creates a file (named <literal>DSUpload_&lt;jobid&gt;.out</literal>) with the results
+of the operation. In case of submission to CREAM through the WMS this file is put automatically in the OutputSandbox
+attribute list by the UI (and can then be retrieved by the user with the <literal>glite-wms-job-output</literal> command).
+If instead the job was submitted directly to the CE, the file is put in the OSB directory of the CE node (and therefore
+can then be retrieved by the user with the <literal>glite-ce-job-output</literal> command) unless the
+<literal>OutputSandboxBaseDestURI</literal> attribute has been used (in this latter case the specified location is used
+to store the DSUpload_&lt;jobid&gt;.out file).
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_OutputFile">
+<title>OutputFile</title>
+<para>
+This is a string attribute representing the name of the output file, generated by the job on the WN, which has to be 
+utomatically uploaded and registered by the WMS. Wildcards are not admitted in the specification of this attribute.
+File names can be provided as simple file names, absolute paths or relative paths with respect to the current working
+directory.
+</para>
+<para><emphasis>Mandatory: Yes (only if OutputData has been specified)</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_StorageElement">
+<title>StorageElement</title>
+<para>
+This is a string representing the URI of the Storage Element where the output file specified in the corresponding
+OutputFile attribute has to be uploaded by the WMS.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No</emphasis></para>
+</section>
+
+<section id="JDL_LogicalFileName">
+<title>LogicalFileName</title>
+<para>
+This is a string representing the logical file name (LFN) the user wants to associate to the output file when registering
+it to the Replica Catalogue. The specified name has to be prefixed by "lfn:" (lowercase). If this attribute
+is not specified then the corresponding output file is registered with a GUID that is assigned automatically by the Data
+Management services.
+</para>
+<para><emphasis>Mandatory: No</emphasis></para>
+<para><emphasis>Default: No (If not specified a GUID is assigned by DM services)</emphasis></para>
+</section>
+
+</section><!-- end of Job Attributes Description -->
+
+<section id="JDL_Examples">
+<title>JDL Examples</title>
+<para>
+Simple examples of JDL describing different types of jobs and requests are reported in this section.
+</para>
+
+<section id="JDL_Example1">
+<title>Example 1</title>
+<para>
+<screen>
+[
+    Type = "job";
+    JobType = "normal";
+    Executable = "/sw/command";
+    Arguments = "60";
+    StdOutput = "sim.out";
+    StdError = "sim.err";
+    OutputSandbox = { "sim.err", "sim.out" };
+    OutputSandboxBaseDestURI = "gsiftp://se1.pd.infn.it:5432/tmp";
+    InputSandbox = {
+        "file:///home/user/file1",
+        "gsiftp:///se1.pd.infn.it:1234/data/file2",
+        "/home/user/file3", "file4"
+    };
+    InputSandboxBaseURI = "gsiftp://se2.cern.ch:5678/tmp";
+]
+</screen>
+With this JDL a "normal" (batch) job will be submitted.
+
+Besides the specification of the executable (already available in the file system of the executing node, since not
+listed in the InputSandbox), and of the standard output/error files, it is specified that the files <literal>file1</literal>,
+<literal>file2</literal>, <literal>file3</literal>, <literal>file4</literal> will have to be staged on the executing node:
+<itemizedlist>
+    <listitem><para><literal>file1</literal> and <literal>file3</literal> will be copied from the client (UI)
+    file system</para></listitem>
+    <listitem><para><literal>file2</literal> will be copied from the specified GridFTP server
+    (<literal>gsiftp:///se1.pd.infn.it:1234/data/file2</literal>)</para></listitem>
+    <listitem><para><literal>file4</literal> will be copied from the GridFTP server specified as InputSandboxBaseURI
+    (<literal>gsiftp://se2.cern.ch:5678/tmp</literal>)</para></listitem>
+</itemizedlist>
+It is also specified that the file <literal>sim.err</literal> and <literal>sim.out</literal> (specified as OutputSandbox)
+must be automatically uploaded into <literal>gsiftp://se1.pd.infn.it:5432/tmp</literal> when job completes its execution.
+</para>
+</section>
+
+<section id="JDL_Example2">
+<title>Example 2</title>
+<para>
+<screen>
+[
+    Type = "job";
+    JobType = "normal";
+    Executable = "script.sh";
+    Arguments = "60";
+        StdOutput = "sim.out";
+        StdInput = "sim.inp";
+        StdError = "sim.err";
+    OutputSandbox = {
+        "sim.err",
+        "sim.out"
+    };
+    OutputSandboxDestURI = {
+        "gsiftp://matrix.datamat.it:5432/tmp/sim.err",
+        "gsiftp://grid003.ct.infn.it:6789/home/cms/sim.out",
+    };
+    InputSandbox = {
+        "file:///home/user/file1", 
+        "gsiftp:///se1.pd.infn.it:1234/data/file2",
+        "/home/user/file3",
+        "file4",
+        "script.sh",
+        "sim.inp"
+    };
+]
+</screen>
+
+This JDL is very similar to the previous one. The only differences are the following:
+<itemizedlist>
+    <listitem><para>The executable and the standard input files have been included in the InputSandbox, and therefore
+    they will be staged in the executing node</para></listitem>
+    <listitem><para>Instead of specifying the URL to be used for all the files of the OutputSandbox, it is specified
+    (via the attribute OutputSandboxDestURI) an URI for each file that have to be uploaded (the files listed as
+    OutputSandbox)</para></listitem>
+    <listitem><para>The attribute InputSandBoxBaseURI hasn&rsquo;t been specified, so the files <literal>file4</literal>,
+    <literal>script.sh</literal> and <literal>sim.inp</literal> will be copied from the file system of the client (UI)
+    machine.</para></listitem>
+</itemizedlist>
+</para>
+</section>
+
+</section><!-- end of JDL Examples -->
+</chapter>
+
+
+
+
+
+
+
+
+
