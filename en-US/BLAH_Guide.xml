@@ -1,0 +1,716 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+<chapter id="BLAH_Guide">
+<title>BLAH User's Guide</title>
+
+<section id="BLAH_Intro">
+<title>BLAH Introduction</title>
+<para>
+BLAHPD is a light component accepting commands according to the BLAH (Batch Local Ascii Helper) protocol to manage jobs
+on different Local Resources Management Systems (LRMS). The BLAH service provides a minimal, pragmatically designed
+common interface for job submission and control to a set of batch systems. Interaction with BLAH is achieved via text
+commands whose syntax and semantics is described below. Interaction with each one of the various supported batch system
+is achieved via customized scripts (the existing scripts are all Bourne 
+shell scripts) that take care of executing the following functions:
+<itemizedlist>
+    <listitem><para>job submit</para></listitem>
+    <listitem><para>job hold</para></listitem>
+    <listitem><para>job resume</para></listitem>
+    <listitem><para>job status</para></listitem>
+    <listitem><para>job cancel</para></listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section id="BLAH_Portab">
+<title>BLAH Portability</title>
+<para>
+The purpose of this writeup is to:
+<itemizedlist>
+    <listitem><para>describe the assumptions that are currently made on the minimal functionality that batch systems
+    must provide;</para></listitem>
+    <listitem><para>describe the details of the command line arguments that are passed to each one of the five scripts
+    that implement the fuctionality described above for a specific batch system;</para></listitem>
+    <listitem><para>provide guidelines for porting of the existing scripts, especially the submit script for which helper
+    shell functions were defined.</para></listitem>
+</itemizedlist>
+</para>
+As the universe of different batch systems that need to be supported is 
+very small, the most efficient way to get help beyond the information 
+collected in these notes is to interact with the BLAH developers directly 
+via the e-mail address <email>blah-help@mi.infn.it</email>
+<para>
+<para>
+</para>
+The string XXX, in the following text, is meant to be replaced with the
+name of the specific batch system being interfaced (pbs, lsf, condor, etc.).
+</para>
+<para>
+BLAH assumes that batch systems are capable to
+<itemizedlist>
+    <listitem><para>Identify jobs for subsequent operations via a unique, constant identifier that is returned at the
+    time of job submission.</para></listitem>
+    <listitem><para>Transfer and optionally rename a configurable set of files from a given location on the submit
+    node to the initial working directory on the selected worker node before the job execution starts.</para></listitem>
+    <listitem><para>Transfer and optionally rename a configurable set of files from the initial working directory of job
+    on the worker node that is selected for execution to a given location on the submit node.</para></listitem>
+    <listitem><para>Provide status of currently running jobs via an appropriate command.</para></listitem>
+    <listitem><para>Provide a historical track of jobs that were accepted and ran in the past via one or more log 
+    files.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+BLAH can use the optional batch system functionality of holding (suspend) and resuming jobs via appropriate commands.
+</para>
+<para>
+BLAH doesn't require batch systems to be able to renew X509 proxies and/or transfer files to and from the
+worker node <emphasis>while the job is being executed</emphasis>. Proxy renewal is taken care of by a proxy renewal
+daemon that runs at the side of the running job and receives delegations of refreshed proxies during the lifetime
+of the job. 
+</para>
+</section><!-- end of BLAH_Portab -->
+
+<section id="Support_lrms">
+<title>The supported batch systems</title>
+<para>
+At the time of writing BLAH supports the following batch systems: LSF, PBS/Torque, SGE, Condor and just recently SLURM.
+In order to enable BLAH to interact with the selected batch system, it must be configured properly by setting few
+parameters on its configuration file which is located by default at <literal>/etc/blah.config</literal>.
+The file contains a list of parameters and their own default value is well defined for a standard setup of BLAH.
+Their customization is even possible if needed.
+For example to enable the support of SLURM is need just a specific parameter <literal>slurm_binpath</literal> which
+informs BLAH about the location where the SLURM executables are located (i.e. scontrol and sacct).
+</para>
+</section><!-- end of Support_lrms -->
+
+<section id="BLAH_scripts">
+
+<section id="Submit_script">
+<title>XXX_submit.sh script</title>
+<para>
+Submit a new job request to the batch system.
+</para>
+<para>
+<emphasis>NOTE:</emphasis> most of the functionality for parsing and handling the
+submit script arguments is provided by a set of shell functions
+that are described further below (see SUBMIT SCRIPT HELPER FUNCTIONS).
+The argument description is provided for reference only.
+
+<emphasys>SYNOPSIS:</emphasis> 
+<screen>
+XXX_submit.sh -c &lt;command&gt; -q &lt;queue&gt;[-i &lt;stdin_file&gt;]
+    [-o &lt;stdout_file&gt;] [-e &lt;stderr_file&gt;] [-x &lt;x509userproxy&gt;]
+    [-v &lt;environment&gt; | -V &lt;environment&gt;] [-s &lt;YES | no&gt;]
+    [-d &lt;YES | no&gt;] [-w &lt;workdir&gt;] [-n &lt;number_of_MPI_nodes&gt;]
+    [-r &lt;YES | no&gt;] [-p &lt;proxyrenew_poll_interval&gt;] 
+    [-l &lt;minimum_left_lifetime_proxy&gt;] [-j &lt;jobid_in_caller&gt;]
+    [-T &lt;location_temp_of_dir&gt;] [-I &lt;list_input_of_additional_files&gt;] 
+    [-O &lt;list_of_additional_files_output&gt;]
+    [-R &lt;list_of_remap_file_output_rules&gt;] [-C &lt;ce_file_requirements&gt;]
+    [-- command_arguments]
+</screen>
+Any argument after '--' will be passed to the user job ("command").
+</para>
+<para>
+The command line switches have the following meaning (switches listed in alphabetical order):
+<itemizedlist>
+    <listitem><para><literal>[-C &lt;ce_file_requirements>]</literal>: When this argument is present, 
+    the local script XXX_local_submit_attributes.sh is called, and its
+    output is pasted to the batch system submit file. The 
+    XXX_local_submit_attributes.sh script is called after sourcing the 
+    contents of the 'CE requirements file' first.
+    This file is composed by the BLAH main daemon and sets shell
+    variables that specify attribute bounds derived from the CERequirements 
+    attribute in the BLAH submit command.
+    Example format for the 'CE requirements file':
+    <screen>
+    GlueHostMainMemoryRAMSize _Min=1000
+    GlueCEPolicyMaxCPUTime _Max=30
+    </screen></para></listitem>
+
+    <listitem><para><literal>[-c command]</literal>: (shell) command to be executed as a batch job.</para></listitem>
+
+    <listitem><para><literal>[-d &lt;YES | no&gt;]</literal>: Debug option. If set to 'yes', it causes the submit file
+    to be sent to /dev/tty, and no actual submission to the batch system.</para></listitem>
+
+    <listitem><para><literal>[-e &lt;stderr_file&gt;]</literal>: Location of the local file that should receive the
+    job STDERR upon job termination.</para></listitem>
+
+    <listitem><para><literal>[-I &lt;list_input_of_additional_files&gt;]</literal>: points to an optional, temporary
+    file containing a list of additional files (one per line) that need to be transferred from the submission node 
+    to the initial working directory on the worker node. This temp file is removed by the submit script.</para></listitem>
+
+    <listitem><para><literal>[-i &lt;stdin_file&gt;]</literal>: Location of a local file to be transferred to
+    the worker node and connected to the STDIN of the job.</para></listitem>
+
+    <listitem><para><literal>[-j &lt;jobid_in_caller&gt;]</literal>: String for unique identification of the job by
+    the calling layer. As this string is unique, it is used to name the submit script, that will be created
+    as 'cream_jobID'.</para></listitem>
+
+    <listitem><para><literal>[-l &lt;minimum_left_lifetime_proxy&gt;]</literal>: Minimum remaining lifetime of
+    the user proxy (expressed in seconds) before the proxy renewal damon will kill the user job. Defaults to 180 seconds,
+    or 3 minutes.</para></listitem>
+
+    <listitem><para><literal>[-n &lt;number_of_MPI_nodes&gt;]</literal>: Number of MPI nodes to be reserved for the job,
+    in case this feature is supported by the underlying batch system.</para></listitem>
+
+    <listitem><para><literal>[-O &lt;list_of_additional_files_output&gt;]</literal>: points to an optional, temporary
+    file containing a list of additional files (one per line) that need to be transferred from the working directory
+    on the worker node back to the submit node. This temp file is removed by the submit script. 
+    The -R arguments can be used to establish file name remapping.</para></listitem>
+
+    <listitem><para><literal>[-o &lt;stdout file&gt;]</literal>: Location of the local file that should receive
+    the job STDOUT upon job termination. </para></listitem>
+
+    <listitem><para><literal>[-p &lt;proxyrenew_poll_interval&gt;]</literal>: time interval (expressed in seconds) between
+    attempts of the proxy renewal daemon to check that the use process is still alive.
+    Defaults to 60 seconds.</para></listitem>
+
+    <listitem><para><literal>[-q &lt;queue_name&gt;]</literal>: Batch system queue to run the job in.</para></listitem>
+
+    <listitem><para><literal>[-R &lt;list_of_remap_file_output_rules&gt;]</literal>: Points to a file containing a list
+    of names is transferred from the worker node to the submit (local) node.
+    The list file will be deleted by the submit script.</para></listitem>
+
+    <listitem><para><literal>[-r &lt;YES | no&gt;]</literal>: Disables the entire BLAH proxy renewal
+    machinery when set to 'no'. Defaults to 'yes' if missing.</para></listitem>
+
+    <listitem><para><literal>[-T &lt;location_temp_of_dir&gt;]</literal>: sets the directory location for storing
+       temporary files.</para></listitem>
+
+    <listitem><para><literal>[-v &lt;environment&gt; | -V &lt;environment&gt;]</literal>: Environment variables
+    to be set for the user job. Two formats are possible:
+    <itemizedlist>
+        <listitem><para>semicolon-separated assignments -v "ENV1=val1;ENV2=val2;..."</para></listitem>
+        <listitem><para>space-separated assignments -V "ENV1=val1 ENV2=val2 ..."</para></listitem>
+    </itemizedlist>
+    </para></listitem>
+
+    <listitem><para><literal>[-x &lt;x509userproxy&gt;]</literal>: Location of the initial X509 user proxy
+    to associate with the job. This file is initially transferred with the job, then (optionally, see -r) renewed via
+    proxy delegation. </para></listitem>
+
+    <listitem><para><literal>[-w &lt;workdir&gt;]</literal>: Directory location pre-pended to relative file paths
+    and used as CWD by the submit script.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+<emphasys>RETURN VALUE:</emphasys>
+Termination code is zero on success, nonzero on error. Job identifier, with the identifier string 'BLAHP_JOBID_PREFIX'
+is returned on STDOUT on success. The job identifier must start with the batch system name followed by a slash (XXX/id).
+</para>
+<para>
+<emphasys>SUBMIT SCRIPT HELPER FUNCTIONS:</emphasys>
+A set of shell functions was written to ease the parsing and handling of the submit script options. They allow to write
+a submit script along the following template:
+<screen>
+    #!/bin/bash
+    # 1. Source definition of helper functions.
+    . `dirname $0`/blah_common_submit_functions.sh
+
+    # 2. Parse the submit options, that are used to set
+    #    a list of bls_opt_XYZ shell variables.
+    bls_parse_submit_options $@
+
+    # 3. Set up temporary files. Set a variable with the name of
+    #    an environment variable that holds the batch system job ID
+    #    at runtime.
+    bls_setup_all_files
+    bls_job_id_for_renewal=XXX_JOBID
+
+    # 4. Start writing the submit script to $bls_tmp_file
+
+    cat &gt; $bls_tmp_file &lt;&lt; end_of_preamble
+    #!/bin/bash
+    # PBS job wrapper generated by `basename $0`
+    # on `/bin/date`
+    # proxy_string = $bls_opt_proxy_string
+    # proxy_local_file = $bls_proxy_local_file
+    # Etc. Etc. Etc.
+    end_of_preamble
+
+    # 5. Handle script local customisations according to -C option
+    #    as appropriate for the batch system at hand.
+    if [ ! -z $bls_opt_req_file ] ; then
+      echo \#\!/bin/sh &gt;&gt; ${bls_opt_req_file}-temp_req_script
+      cat $bls_opt_req_file &gt;&gt; ${bls_opt_req_file}-temp_req_script
+      echo "source ${GLITE_LOCATION:-/opt/glite}/bin/XXX_local_submit_attributes.sh" &gt;&gt; ${bls_opt_req_file}-temp_req_script
+      chmod +x ${bls_opt_req_file}-temp_req_script
+      ${bls_opt_req_file}-temp_req_script  &gt;&gt; $bls_tmp_file 2&gt; /dev/null
+      rm -f ${bls_opt_req_file}-temp_req_script
+      rm -f $bls_opt_req_file
+    fi
+
+    # 6. Add specific directives to select queue ($bls_opt_queue) and
+    #    MPI node request ($bls_opt_mpinodes)
+
+    # 7. Add directives to transfer and rename input and output files.
+    #    These are stored as 
+    #    $bls_inputsand_local_0...$bls_inputsand_local_n-1
+    #    $bls_inputsand_remote_0...$bls_inputsand_remote_n-1
+    #    $bls_outputsand_local_0...$bls_outputsand_local_n-1
+    #    $bls_outputsand_remote_0...$bls_outputsand_remote_n-1
+    #
+    #    Two shell functions can help here.
+    #    a:
+    #      bls_fl_subst_and_accumulate inputsand "@@F_REMOTE/@@F_LOCAL" "sep"
+    #      bls_fl_subst_and_accumulate outputsand "@@F_REMOTE/@@F_LOCAL" "sep"
+    #      fill $bls_fl_subst_and_accumulate_result with a list of "sep"
+    #      separated strings formatted as shown in the second argument.
+    #      The submit node full file path is substituted to @@F_LOCAL
+    #      and the worker node path relative to the initial working dir
+    #      is substituted to @@F_REMOTE.
+    #    b:
+    #      bls_fl_subst_and_dump inputsand "@@F_LOCAL&gt;@@F_REMOTE" $bls_tmp_file
+    #      bls_fl_subst_and_dump outputsand "@@F_LOCAL&lt;@@F_REMOTE" $bls_tmp_file
+    #      append to $bls_tmp_file a line for each input and output file,
+    #      where @@F_REMOTE and @@F_LOCAL are substituted as above.
+
+    # 8. Append job wrapper as a shell script to $bls_tmp_file
+    bls_add_job_wrapper
+
+    # 9. Send the submit file $bls_tmp_file to the batch system and
+    #    try making sure it doesn't get lost.
+
+    # 10. Echo to STDOUT the unique job ID to be used by subsequent scripts
+    #     (with BLAHP_JOBID_PREFIX) and wrap up. The job ID must be
+    #     properly understood by subsequent commands.
+    echo "BLAHP_JOBID_PREFIXXXX?$jobID"
+    bls_wrap_up_submit
+    exit $retcode
+</screen>
+</para>
+</section>
+
+<section id="Hold_script">
+<title>XXX_hold.sh script</title>
+<para>
+Suspend the execution of a job.
+</para>
+<para>
+<emphasys>SYNOPSIS:</emphasys>
+<screen>XXX_hold.sh &lt;job identifier&gt;</screen>
+The job identifier must be the same string returned by the submit script (without the leading BLAHP_JOBID_PREFIX).
+Any leading part up to the first slash '/' will be ignored by the script.
+</para>
+<para>
+<emphasys>RETURN VALUE:</emphasys>
+Termination code is zero on success, nonzero on error.
+</para>
+</section>
+
+<section id="Resume_script">
+<title>XXX_resume.sh script</title>
+<para>
+Resume the execution of a (previously suspended) job.
+</para>
+<para>
+<emphasys>SYNOPSIS:</emphasys>
+<screen>XXX_resume.sh &lt;job identifier&gt;</screen>
+The job identifier must be the same string returned by the submit script (without the leading BLAHP_JOBID_PREFIX).
+Any leading part up to the first slash '/' will be ignored by the script.
+</para>
+<para>
+<emphasys>RETURN VALUE:</emphasys>
+Termination code is zero on success, nonzero on error.
+</para>
+</section>
+
+<section id="Status_script">
+<title>XXX_status.sh script</title>
+<para>
+Get current status of a job.
+</para>
+<emphasys>SYNOPSIS:</emphasys>
+<screen>XXX_status.sh [-w] [-n] &lt;job identifier&gt;</screen>
+The job identifier must be the same string returned by the submit script (without the leading BLAHP_JOBID_PREFIX).
+Any leading part up to the first slash '/' will be ignored by the script.
+<itemizedlist>
+    <listitem><para><literal>[-n]</literal>: Option specific to the CREAM caller. Return the port used by the BLParser
+    (see description below) to communicate with the CREAM service</para></listitem>
+    <listitem><para><literal>[-w]</literal>: Return the worker node where a job is running as an attribute of
+    the output classad (WorkerNode ="host.domain")</para></listitem>
+</itemizedlist>
+</para>
+<para>
+<emphasys>RETURN VALUE:</emphasys>
+The script must return a string-formatted classad (see http://www.cs.wisc.edu/condor/classad/refman/ for the complete
+reference on classad syntax) containing at least the following attributes:
+<itemizedlist>
+    <listitem><para><screen>BatchjobId = &lt;jobId without the leading batch system name&gt;</screen></para></listitem>
+    <listitem><para><screen>JobStatus = &lt;status_code&gt;</screen>
+    possible value for the status code are 1 = IDLE, 2 = RUNNING, 3 = REMOVED, 4 = COMPLETED, 5 = HELD</para></listitem>
+    <listitem><para><screen><screen>ExitCode = &lt;code&gt;</screen> only for COMPLETED jobs</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Example of status script results:
+<itemizedlist>
+    <listitem><para>job queued
+    <screen>[ BatchjobId = "26526.atlfarm006.mi.infn.it"; JobStatus = 1 ]</screen></para></listitem>
+    <listitem><para>job completed
+    <screen>[ ExitCode = 0; BatchjobId = "26526.atlfarm006.mi.infn.it"; JobStatus = 4 ]</screen></para></listitem>
+</para>
+</section>
+
+<section id="Cancel_script">
+<title>XXX_cancel.sh script</title>
+<para>
+Remove a job from the batch system queue.
+</para>
+<para>
+<emphasys>SYNOPSIS:</emphasys>
+<screen>XXX_cancel.sh &lt;job identifier&gt;</screen>
+The job identifier must be the same string returned by the submit script (without the leading BLAHP_JOBID_PREFIX).
+Any leading part up to the first slash '/' will be ignored by the script.
+</para>
+<para>
+<emphasys>RETURN VALUE:</emphasys>
+Termination code is zero on success, nonzero on error.
+</para>
+</section>
+
+</section><!-- endo of BLAH_scripts -->
+
+<section id="BLAH_fwd_req">
+<title>BLAH forward requirements to the local batch system</title>
+<para>
+The user can set some requirements to be forwarded to the local batch system, by using the attribute
+<literal>CERequirements</literal>, as defined above, in the <literal>blah_job_submit</literal> command.
+This can be achieved both with direct submission to the CREAM CE and with submission to the CE via the WMS,
+as explained in the following:
+<itemizedlist>
+    <listitem><para>direct submission to CREAM -> the attributes to be forwarded are specified in the .jdl
+    <literal>CERequirements</literal> attribute and are the ones of the GlueSchema in use</para></listitem>
+    <listitem><para>submission to a CE via WMS -> the CERequirements  attribute for <literal>blah_job_submit</literal>
+    is filled taking into account the value of the job JDL Requirements expression and what is specified as
+    CeForwardParameters in the WMS conf file (workloadmanager section). Also in this case the parameters to be
+    forwarded are chosen from the GlueSchema in use</para></listitem>
+</itemizedlist>
+</para>
+</section><!-- end of BLAH_fwd_req -->
+
+<section id="BLAH_syntax">
+<title>BLAH Commands syntax and semantics</title>
+
+<section id="BLAH_commands">
+<title>BLAH Commands</title>
+<para>
+The following list of commands represents the set of commands required for interaction with the BLAHP server,
+interfacing to a given Local Resource Management system. This is based on the minimum set of commands used in the
+original GAHP (v1.0.0) specification removing commands that are specific to the operation of the GRAM protocol
+(INITIALIZE_FROM_FILE, GASS_SERVER_INIT, GRAM_CALLBACK_ALLOW, GRAM_JOB_CALLBACK_REGISTER, GRAM_PING).
+The JOB_SIGNAL command may be initially left unimplemented for some of the batch systems (and in that case will return
+an error <literal>E</literal> state and will not be returned by COMMANDS).
+<itemizedlist>
+    <listitem><para>BLAH_JOB_CANCEL</para></listitem>
+    <listitem><para>BLAH_JOB_SIGNAL</para></listitem>
+    <listitem><para>BLAH_JOB_HOLD</para></listitem>
+    <listitem><para>BLAH_JOB_REFRESH_PROXY</para></listitem>
+    <listitem><para>BLAH_JOB_RESUME</para></listitem>
+    <listitem><para>BLAH_JOB_STATUS</para></listitem>
+    <listitem><para>BLAH_JOB_STATUS_ALL</para></listitem>
+    <listitem><para>BLAH_JOB_STATUS_SELECT</para></listitem>
+    <listitem><para>BLAH_JOB_SUBMIT</para></listitem>
+    <listitem><para>BLAH_SET_GLEXEC_DN</para></listitem>
+    <listitem><para>BLAH_SET_GLEXEC_OFF</para></listitem>
+    <listitem><para>COMMANDS</para></listitem>
+    <listitem><para>CACHE_PROXY_FROM_FILE</para></listitem>
+    <listitem><para>QUIT</para></listitem>
+    <listitem><para>RESULTS</para></listitem>
+    <listitem><para>USE_CACHED_PROXY</para></listitem>
+    <listitem><para>UNCACHE_PROXY</para></listitem>
+    <listitem><para>VERSION</para></listitem>
+</itemizedlist>
+Optionally, the following two commands may also be implemented:
+<itemizedlist>
+    <listitem><para>ASYNC_MODE_ON</para></listitem>
+    <listitem><para>ASYNC_MODE_OFF</para></listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section id="BLAH_cms_struct">
+<title>BLAHP Commands structure</title>
+
+<section id="BLAH_terms">
+<title>Conventions and Terms used</title>
+<para>
+Below are definitions for the terms used in the sections to follow:
+<itemizedlist>
+    <listitem><para><literal>&lt;CRLF&gt;</literal>The characters carriage return and line feed (in that order), 
+    or solely the line feed character.</para></listitem>
+    <listitem><para><literal>&lt;SP&gt;</literal>The space character.</para></listitem>
+    <listitem><para><literal>line</literal> A sequence of ASCII characters ending with a 
+    <literal>&lt;SP&gt;</literal></para></listitem>
+    <listitem><para><literal>Request Line</literal> A request for action on the part of 
+    the BLAHP server.</para></listitem>
+    <listitem><para><literal>Return Line</literal> A line immediately returned by the BLAHP server upon receiving
+    a Request Line.</para></listitem>
+    <listitem><para><literal>Result Line</literal> A line sent by the BLAHP server in response to a RESULTS request,
+    which communicates the results of a previous asynchronous command Request.</para></listitem>
+    <listitem><para><literal>S:</literal> and <literal>R:</literal> In the Example sections for the commands below,
+    the prefix "S: " is used to signify what the client sends to the BLAHP server.
+    The prefix "R: " is used to signify what the client receives from the BLAHP server. 
+    Note that the "S: " or "R: " should not actually be sent or received.</para></listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section id="BLAH_cmd_struct">
+<title>Commands structure</title>
+<para>
+BLAHP commands consist of three parts:
+<itemizedlist>
+    <listitem><para>Request Line</para></listitem>
+    <listitem><para>Return Line</para></listitem>
+    <listitem><para>Result Line</para></listitem>
+</itemizedlist>
+Each of these "Lines" consists of a variable length character string ending with the character sequence &lt;CRLF&gt;.  
+</para>
+<para>
+A Request Line is a request from the client for action on the part of the BLAHP server. 
+Each Request Line consists of a command code followed by argument field(s).  Command codes are a string of alphabetic
+characters. Upper and lower case alphabetic characters are to be treated identically with respect to command codes.
+Thus, any of the following may represent the blah_job_submit command:
+<itemizedlist>
+    <listitem><para>blah_job_submit</para></listitem>
+    <listitem><para>Blah_Job_Submit</para></listitem>
+    <listitem><para>blAh_joB_suBMit</para></listitem>
+    <listitem><para>BLAH_JOB_SUBMIT</para></listitem>
+</itemizedlist>
+In contrast, the argument fields of a Request Line are <emphasys>case sensitive</emphasys>.
+</para>
+<para>
+The Return Line is always generated by the server as an immediate response to a Request Line. 
+The first character of a Return Line will contain one the following characters:
+<itemizedlist>
+    <listitem><para>S - for Success</para></listitem>
+    <listitem><para>F - for Failure</para></listitem>
+    <listitem><para>E - for a syntax or parse Error</para></listitem>
+</itemizedlist>
+Any Request Line which contains an unrecognized or unsupported command, or a command with an insufficient number of
+arguments, will generate an "E" response.
+</para>
+<para>
+The Result Line is used to support commands that would otherwise block.  Any BLAHP command which may require the 
+implementation to block on network communication require a "request id" as part of the Request Line.  For such commands,
+the Result Line just communicates if the request has been successfully parsed and queued for service by the BLAHP server.
+At this point, the BLAHP server would typically dispatch a new thread to actually service the request.  Once the request
+has completed, the dispatched thread should create a Result Line and enqueue it until the client issues a RESULT command.  
+</para>
+</section>
+
+<section id="BLAH_transpar">
+<title>Transparency</title>
+<para>
+Arguments on a particular Line (be it Request, Return, or Result) are typically separated by a &lt;SP&gt;.
+In the event that a string argument needs to contain a &lt;SP&gt; within the string itself, it may be escaped by placing
+a backslash ("\") in front of the &lt;SP&gt; character.  Thus, the character sequence "\ " (no quotes) must not be treated
+as a separator between arguments, but instead as a space character within a string argument.
+</para>
+</section>
+
+<section id="BLAH_events">
+<title>Sequence of Events</title>
+<para>
+Upon startup, the BLAHP server should output to stdout a banner string which is identical to the output from the VERSION
+command without the beginning "S " sequence (see example below). Next, the BLAHP server should wait for a complete
+Request Line from the client (e.g. stdin). The server is to take no action until a Request Line sequence is received.
+</para>
+<para>
+Example:
+<screen>
+R: $GahpVersion: x.y.z Feb 31 2004 INFN\ Blahpd $
+  S: COMMANDS
+  R: S COMMANDS BLAH_JOB_CANCEL BLAH_JOB_SIGNAL BLAH_JOB_STATUS BLAH_JOB_SUBMIT COMMANDS QUIT RESULTS VERSION
+  S: VERSION
+  R: S $GahpVersion: x.y.z Feb 31 2004 INFN\ Blahpd $
+                (other commands)
+  S: QUIT
+  R: S
+</screen>
+</para>
+</section>
+
+<section id="BLAH_cmd_syntax">
+<title>BLAH Commands syntax</title>
+<para>
+This section contains the syntax for the Request, Return, and Result line for each of the following commands:
+<itemizedlist>
+    <listitem><para><literal>COMMANDS</literal>: List all the commands from this protocol specification which are
+    implemented by this BLAHP server.</para>
+    <para>Request Line:  COMMANDS &lt;CRLF&gt;</para>
+    <para>Return Line: S &lt;SP&gt; &lt;COMMAND 1&gt; &lt;SP&gt; &lt;COMMAND 2&gt; &lt;SP&gt; ... &lt;CRLF&gt;</para>
+    <para>Result Line: None.</para></listitem>
+
+    <listitem><para><literal>VERSION</literal>: Return the version string for this BLAHP.  The version string follows
+    a specified format (see below).  Ideally, the version entire version string, including the starting and ending dollar
+    sign ($) delimiters, should be a literal string in the text of the BLAHP server executable.
+    This way, the Unix/RCS "ident" command can produce the version string. The version returned should correspond to the
+    version of the protocol supported.</para>
+    <para>Request Line: VERSION &lt;CRLF&gt;</para>
+    <para>Return Line: S &lt;SP&gt; $GahpVesion: &lt;SP&gt; &lt;major&gt;.&lt;minor&gt;.&lt;subminor&gt; &lt;SP&gt;
+    &lt;build-month&gt; &lt;SP&gt; &lt;build-day-of-month&gt; &lt;SP&gt; &lt;build-year&gt; &lt;SP&gt; 
+    &lt;general-descrip&gt; &lt;SP&gt;$ &lt;CRLF&gt;</para>
+    <para>
+    <itemizedlist>
+        <listitem><para>major.minor.subminor = for this version of the protocol, use version 1.0.0.</para></listitem>
+        <listitem><para>build-month = string with the month abbreviation when this BLAHP server was built or released.
+        Permitted values are: "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", and 
+        "Dec".</para></listitem>
+        <listitem><para>build-day-of-month = day of the month when BLAHP server was built or released; 
+        an integer between 1 and 31 inclusive.</para></listitem>
+        <listitem><para>build-year = four digit integer specifying the year in  which the BLAHP server was built 
+        or released.</para></listitem>
+        <listitem><para>general-descrip = a string identifying a particular BLAHP server implementation.</para></listitem>
+    </itemizedlist>
+    </para>
+    <para>Result Line: None.</para>
+    <para>Example: <screen> S: VERSION R: S $GahpVersion: x.y.z Feb 31 2004 INFN\ Blahpd $</screen></para></listitem>
+
+    <listitem><para><literal>QUIT</literal>: Free any/all system resources (close all sockets, etc) and terminate as 
+    quickly as possible.</para>
+    <para>Request Line: QUIT &lt;CRLF&gt;</para>
+    <para>Return Line: S &lt;CRLF&gt;</para>
+    <para>Immediately afterwards, the command pipe should be closed and the BLAHP server should terminate.</para>
+    <para>Result Line: None.</para></listitem>
+
+    <listitem><para><literal>RESULTS</literal>: Display all of the Result Lines which have been queued since the last
+    RESULTS command was issued.  Upon success, the first return line specifies the number of subsequent Result Lines
+    which will be displayed.  Then each result line appears (one per line) -- each starts with the request ID which
+    corresponds to the request ID supplied when the corresponding command was submitted.  The exact format of the Result
+    Line varies based upon which corresponding Request command was issued.</para>
+    <para>IMPORTANT: Result Lines must be displayed in the <emphasys>exact order</emphasys> in which they were queued!!!
+    In other words, the Result Lines displayed must be sorted in the order by which they were placed into the BLAHP's 
+    result line queue, from earliest to most recent.</para>
+    <para>Request Line: RESULTS &lt;crlf&gt;</para>
+    <para>Return Line(s): S &lt;SP&gt;&lt;num-of-subsequent-result-lines&gt; &lt;CRLF&gt;&lt;reqid&gt; &lt;SP&gt;
+     ... &lt;CRLF&gt; &lt;reqid&gt; &lt;SP&gt; ... &lt;CRLF&gt;...</para>
+    <para>reqid = integer Request ID, set to the value specified in the corresponding Request Line.</para>
+    <para>Result Line: None.</para>
+    <para>Example:
+    <screen>
+    S: RESULTS
+      R: S 1
+      R: 100 0
+    </screen>
+    </para></listitem>
+    
+    <listitem><para><literal>ASYNC_MODE_ON</literal>: Enable Asynchronous notification when the BLAHP server has results
+    pending for a client. This is most useful for clients that do not want to periodically poll the BLAHP server with a
+    RESULTS command. When asynchronous notification mode is active, the GAHP server will print out an <literal>R</literal>
+    (without the quotes) on column one when the 'RESULTS' command would return one or more lines. The <literal>R</literal>
+    is printed only once between successive <literal>RESULTS</literal> commands. The <literal>R</literal> is also
+    guaranteed to only appear in between atomic return lines; the <literal>R</literal> will not interrupt another command's
+    output.</para>
+    <para>If there are already pending results when the asynchronous results available mode is activated, no indication of
+    the presence of those results will be given. A GAHP server is permitted to only consider changes to it's result queue
+    for additions after the ASYNC_MODE_ON command has successfully completed. GAHP clients should issue a
+    <literal>RESULTS</literal> command immediately after enabling asynchronous notification, to ensure that any results that
+    may have been added to the queue during the processing of the ASYNC_MODE_ON command are accounted for.</para>
+    <para>Request Line: ASYNC_MODE_ON &lt;CRLF&gt;</para>
+    <para>Return Line: S &lt;CRLF&gt; Immediately afterwards, the client should be prepared to handle an R  &lt;CRLF&gt;
+    appearing in the output of the GAHP server.</para>
+    <para>Result Line: None.</para>
+    <para>Example:
+    <screen>
+      S: ASYNC_MODE_ON
+      R: S
+      S: BLAH_JOB_CANCEL 00001 123.bbq.mi.infn.it
+      R: S
+      S: BLAH_JOB_CANCEL 00002 124.bbq.mi.infn.it
+      R: S
+      R: R
+      S: RESULTS
+      R: S 2
+      R: 00001 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+      R: 00002 0
+    </screen>
+    Note that you are NOT guaranteed that the <literal>R</literal> will not appear between the dispatching of a command and 
+    the return line(s) of that command; the GAHP server only guarantees that the <literal>R</literal> will not interrupt an
+    in-progress return. The following is also a legal example:
+    <screen>S: ASYNC_MODE_ON
+      R: S
+      S: BLAH_JOB_CANCEL 00001 123.bbq.mi.infn.it
+      R: S
+      S: BLAH_JOB_CANCEL 00002 124.bbq.mi.infn.it
+      R: R
+      R: S
+      S: RESULTS
+      R: S 2
+      R: 00001 0
+      R: 00002 0
+    </screen>
+    </para></listitem>
+
+    <listitem><para><literal>ASYNC_MODE_OFF</literal>: Disable asynchronous results-available notification. In this mode,
+    the only way to discover available results is to poll with the RESULTS command.  This mode is the default. Asynchronous
+    mode can be enabled with the ASYNC_MODE_ON command.</para>
+    <para>Request Line: ASYNC_MODE_OFF &lt;CRLF&gt;</para>
+    <para>Return Line: S &lt;CRLF&gt;</para>
+    <para>Results Line: None</para>
+    <para>Example:
+    <screen>
+      S: ASYNC_MODE_OFF
+      R: S
+    </screen>
+    </para></listitem>
+</itemizedlist>
+</para>
+</section>
+
+<!-- section id="BLAH_">
+<title></title>
+<para>
+</para>
+</section -->
+
+</section><!-- BLAH_cms_struct -->
+
+</section><!-- end of BLAH_syntax -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</chapter>
