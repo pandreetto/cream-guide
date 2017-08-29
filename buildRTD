@@ -1,0 +1,82 @@
+#!/bin/bash
+
+mkdir -p build/prestage
+mkdir -p build/rts/_build
+mkdir -p build/rts/_static
+mkdir -p build/rts/_templates
+mkdir -p build/pages
+
+if [ ! -e build/rts/conf.py ] ; then
+    cat << EOF > build/rts/conf.py
+import sys
+import os
+extensions = []
+templates_path = ['_templates']
+source_suffix = '.rst'
+master_doc = 'index'
+project = u'CREAM_Guide'
+copyright = u'2017, Paolo Andreetto'
+author = u'Paolo Andreetto'
+version = u'0.1'
+release = u'0.1'
+language = None
+exclude_patterns = ['_build']
+pygments_style = 'sphinx'
+todo_include_todos = False
+html_theme = 'sphinx_rtd_theme'
+html_static_path = ['_static']
+html_show_sourcelink = False
+htmlhelp_basename = 'CREAM_Guidedoc'
+latex_elements = {}
+latex_documents = [
+    (master_doc, 'CREAM_Guide.tex', u'CREAM_Guide Documentation', u'Paolo Andreetto', 'manual'),
+]
+man_pages = [
+    (master_doc, 'cream_guide', u'CREAM_Guide Documentation', [author], 1)
+]
+texinfo_documents = [
+    (master_doc, 'CREAM_Guide', u'CREAM_Guide Documentation',
+     author, 'CREAM_Guide', 'One line description of project.',
+     'Miscellaneous'),
+]
+EOF
+fi
+
+if [ ! -e build/rts/index.rst ] ; then
+    cat << EOF > build/rts/index.rst
+Welcome to CREAM_Guide documentation!
+=====================================
+
+Contents:
+
+.. toctree::
+
+   Overview
+   User_Guide
+   JDL_Guide
+   BLAH_Guide
+
+
+Indices and tables
+==================
+
+* :ref:\`genindex\`
+* :ref:\`modindex\`
+EOF
+fi
+
+PAGE_LIST="Overview User_Guide JDL_Guide BLAH_Guide"
+
+# Some workarounds
+for item in $PAGE_LIST ; do
+    #xsltproc -o build/tmp/${item}.html /usr/share/xml/docbook/stylesheet/docbook-xsl/xhtml/docbook.xsl en-US/${item}.xml
+    sed -e 's|<chapter|<section|g' -e 's|</chapter|</section|g' en-US/${item}.xml > build/prestage/${item}.xml
+done
+
+for item in $PAGE_LIST ; do
+    pandoc -f docbook -t rst -o build/rts/${item}.rst build/prestage/${item}.xml
+done
+
+sphinx-build -b html build/rts build/pages/
+
+
