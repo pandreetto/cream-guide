@@ -97,7 +97,7 @@ submit script arguments is provided by a set of shell functions
 that are described further below (see SUBMIT SCRIPT HELPER FUNCTIONS).
 The argument description is provided for reference only.
 
-<emphasys>SYNOPSIS:</emphasis> 
+<emphasis>SYNOPSIS:</emphasis> 
 <screen>
 XXX_submit.sh -c &lt;command&gt; -q &lt;queue&gt;[-i &lt;stdin_file&gt;]
     [-o &lt;stdout_file&gt;] [-e &lt;stderr_file&gt;] [-x &lt;x509userproxy&gt;]
@@ -196,12 +196,12 @@ The command line switches have the following meaning (switches listed in alphabe
 </itemizedlist>
 </para>
 <para>
-<emphasys>RETURN VALUE:</emphasys>
+<emphasis>RETURN VALUE:</emphasis>
 Termination code is zero on success, nonzero on error. Job identifier, with the identifier string 'BLAHP_JOBID_PREFIX'
 is returned on STDOUT on success. The job identifier must start with the batch system name followed by a slash (XXX/id).
 </para>
 <para>
-<emphasys>SUBMIT SCRIPT HELPER FUNCTIONS:</emphasys>
+<emphasis>SUBMIT SCRIPT HELPER FUNCTIONS:</emphasis>
 A set of shell functions was written to ease the parsing and handling of the submit script options. They allow to write
 a submit script along the following template:
 <screen>
@@ -289,13 +289,13 @@ a submit script along the following template:
 Suspend the execution of a job.
 </para>
 <para>
-<emphasys>SYNOPSIS:</emphasys>
+<emphasis>SYNOPSIS:</emphasis>
 <screen>XXX_hold.sh &lt;job identifier&gt;</screen>
 The job identifier must be the same string returned by the submit script (without the leading BLAHP_JOBID_PREFIX).
 Any leading part up to the first slash '/' will be ignored by the script.
 </para>
 <para>
-<emphasys>RETURN VALUE:</emphasys>
+<emphasis>RETURN VALUE:</emphasis>
 Termination code is zero on success, nonzero on error.
 </para>
 </section>
@@ -306,13 +306,13 @@ Termination code is zero on success, nonzero on error.
 Resume the execution of a (previously suspended) job.
 </para>
 <para>
-<emphasys>SYNOPSIS:</emphasys>
+<emphasis>SYNOPSIS:</emphasis>
 <screen>XXX_resume.sh &lt;job identifier&gt;</screen>
 The job identifier must be the same string returned by the submit script (without the leading BLAHP_JOBID_PREFIX).
 Any leading part up to the first slash '/' will be ignored by the script.
 </para>
 <para>
-<emphasys>RETURN VALUE:</emphasys>
+<emphasis>RETURN VALUE:</emphasis>
 Termination code is zero on success, nonzero on error.
 </para>
 </section>
@@ -322,7 +322,8 @@ Termination code is zero on success, nonzero on error.
 <para>
 Get current status of a job.
 </para>
-<emphasys>SYNOPSIS:</emphasys>
+<para>
+<emphasis>SYNOPSIS:</emphasis>
 <screen>XXX_status.sh [-w] [-n] &lt;job identifier&gt;</screen>
 The job identifier must be the same string returned by the submit script (without the leading BLAHP_JOBID_PREFIX).
 Any leading part up to the first slash '/' will be ignored by the script.
@@ -334,14 +335,14 @@ Any leading part up to the first slash '/' will be ignored by the script.
 </itemizedlist>
 </para>
 <para>
-<emphasys>RETURN VALUE:</emphasys>
+<emphasis>RETURN VALUE:</emphasis>
 The script must return a string-formatted classad (see http://www.cs.wisc.edu/condor/classad/refman/ for the complete
 reference on classad syntax) containing at least the following attributes:
 <itemizedlist>
     <listitem><para><screen>BatchjobId = &lt;jobId without the leading batch system name&gt;</screen></para></listitem>
     <listitem><para><screen>JobStatus = &lt;status_code&gt;</screen>
     possible value for the status code are 1 = IDLE, 2 = RUNNING, 3 = REMOVED, 4 = COMPLETED, 5 = HELD</para></listitem>
-    <listitem><para><screen><screen>ExitCode = &lt;code&gt;</screen> only for COMPLETED jobs</para></listitem>
+    <listitem><para><screen>ExitCode = &lt;code&gt;</screen> only for COMPLETED jobs</para></listitem>
 </itemizedlist>
 </para>
 <para>
@@ -351,6 +352,7 @@ Example of status script results:
     <screen>[ BatchjobId = "26526.atlfarm006.mi.infn.it"; JobStatus = 1 ]</screen></para></listitem>
     <listitem><para>job completed
     <screen>[ ExitCode = 0; BatchjobId = "26526.atlfarm006.mi.infn.it"; JobStatus = 4 ]</screen></para></listitem>
+</itemizedlist>
 </para>
 </section>
 
@@ -360,13 +362,13 @@ Example of status script results:
 Remove a job from the batch system queue.
 </para>
 <para>
-<emphasys>SYNOPSIS:</emphasys>
+<emphasis>SYNOPSIS:</emphasis>
 <screen>XXX_cancel.sh &lt;job identifier&gt;</screen>
 The job identifier must be the same string returned by the submit script (without the leading BLAHP_JOBID_PREFIX).
 Any leading part up to the first slash '/' will be ignored by the script.
 </para>
 <para>
-<emphasys>RETURN VALUE:</emphasys>
+<emphasis>RETURN VALUE:</emphasis>
 Termination code is zero on success, nonzero on error.
 </para>
 </section>
@@ -480,7 +482,7 @@ Thus, any of the following may represent the blah_job_submit command:
     <listitem><para>blAh_joB_suBMit</para></listitem>
     <listitem><para>BLAH_JOB_SUBMIT</para></listitem>
 </itemizedlist>
-In contrast, the argument fields of a Request Line are <emphasys>case sensitive</emphasys>.
+In contrast, the argument fields of a Request Line are <emphasis>case sensitive</emphasis>.
 </para>
 <para>
 The Return Line is always generated by the server as an immediate response to a Request Line. 
@@ -534,6 +536,8 @@ R: $GahpVersion: x.y.z Feb 31 2004 INFN\ Blahpd $
 </para>
 </section>
 
+</section><!-- BLAH_cms_struct -->
+
 <section id="BLAH_cmd_syntax">
 <title>BLAH Commands syntax</title>
 <para>
@@ -582,7 +586,7 @@ This section contains the syntax for the Request, Return, and Result line for ea
     which will be displayed.  Then each result line appears (one per line) -- each starts with the request ID which
     corresponds to the request ID supplied when the corresponding command was submitted.  The exact format of the Result
     Line varies based upon which corresponding Request command was issued.</para>
-    <para>IMPORTANT: Result Lines must be displayed in the <emphasys>exact order</emphasys> in which they were queued!!!
+    <para>IMPORTANT: Result Lines must be displayed in the <emphasis>exact order</emphasis> in which they were queued!!!
     In other words, the Result Lines displayed must be sorted in the order by which they were placed into the BLAHP's 
     result line queue, from earliest to most recent.</para>
     <para>Request Line: RESULTS &lt;crlf&gt;</para>
@@ -676,16 +680,790 @@ This section contains the syntax for the Request, Return, and Result line for ea
 </para>
 </section>
 
-<!-- section id="BLAH_">
-<title></title>
+<section id="BLAH_job_submit">
+<title>BLAH_JOB_SUBMIT</title>
 <para>
+Submit a job request to a specified queue (specified in the submit classad). 
+This will cause the job to be submitted to the batch system.
 </para>
-</section -->
+<para>
+Request Line: BLAH_JOB_SUBMIT &lt;SP&gt; &lt;reqid&gt; &lt;SP&gt; &lt;submit classad&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+    <listitem><para>submit classad = valid submit description for the job, in string representation. 
+                    See paragraph 3.0 for a description of the format. Here's a list of supported attributes 
+                    with a brief description.
+        <itemizedlist>
+            <listitem><para>"Cmd": Full path of the executable in the local filesystem</para></listitem>
+            <listitem><para>"Args": List of individual arguments (no '/bin/sh' convention on argument separation,
+                but separate arguments) for the executable</para></listitem>
+            <listitem><para>"In":  Full path in the local filesystem where the standard input for the executable
+                is found</para></listitem>
+            <listitem><para>"Out":  Full path in the local filesystem where the standard output of the executable
+                will be stored (at job completion).</para></listitem>
+            <listitem><para>"Err":  Full path in the local filesystem where the standard error of the executable
+                will be stored (at job completion).  </para></listitem>  
+            <listitem><para>"X509UserProxy": Full path wherethe proxy certificate is stored.</para></listitem>
+            <listitem><para>"Env": Semicolon-separated list of environment     variables of the form: 
+                <screen>&lt;parameter&gt; = &lt;value&gt;</screen></para></listitem>
+            <listitem><para>"Stagecmd": Sets if the executable of the job must be copied on the WorkerNode:
+                can be "TRUE" or "FALSE".</para></listitem>
+            <listitem><para>"Queue": Queue in the local batch system where the job must be enqueued.</para></listitem>
+            <listitem><para>"Gridtype": String indicating the underlying local batch system
+                (currently "pbs" and "lsf" supported).</para></listitem>
+            <listitem><para>"uniquejobid": unique name identifier for the final job to be submitted to the local
+                batch system. </para></listitem>
+            <listitem><para>"NodeNumber": number of nodes to be reserved for an MPI job. It gets translated into
+                the LRMS command qsub "-l nodes=&lt;n&gt;" for pbs or into  "-n &lt;n&gt;" for lsf. For Condor this
+                attribute is not supported, therefore it gets ignored.</para></listitem>
+            <listitem><para>"CERequirements": string containing the requirements to be forwarded to the local
+                batch system </para></listitem>
+            <listitem><para>"TransferInput = file1,file2,file...": comma-delimited list of all the files to be transferred
+                into the working directory for the job before the job is started. Only the transfer of files is available.
+                The transfer of subdirectories is not supported.</para></listitem>
+            <listitem><para>"TransferOutput = file1,file2,file...": an explicit list of output files to be transferred back
+                from the temporary working directory on the execute machine to the submit machine (where BLAHPD is running).
+                Only the standard output and standard error files, are transferred back by default
+                if requested.</para></listitem>
+            <listitem><para>"TransferOutputRemaps = name1=newname1;name2=newname2;name=newname...": This attribute specifies
+                the name (and optionally the complete path) to use when downloading output files from the completed job.
+                <emphasis>Note that the mappings are separated by semicolons</emphasis>. Normally, output files are
+                transferred back to the initial working directory with the same name they had in the execution directory.
+                This gives you the option to save them with a different path or name. If you specify a relative path, the final
+                path will be relative to the job's initial working directory (the directory specified in the 'Iwd' attribute,
+                or, if this is missing, the current working directory of BLAHPD)</para></listitem>
+        </itemizedlist>
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: <screen>&lt;result&gt; &lt;CRLF&gt;</screen>
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request (meaning that the request
+    is now pending), or an "E" for error on the parse of the request or its arguments (e.g. an unrecognized or unsupported
+    command, or for missing or malformed arguments).</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Lines: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;sp&gt; &lt;job_local_id&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+    <listitem><para>job_local_id = on success, a string representing a unique identifier for the job.
+        This identifier must not be bound to this BLAHP server, but instead must be allowed to be used in subsequent
+        BLAHP server instantiations.  For instance, the job_local_id must be implemented in such a fashion that the following
+        sequence of events by the caller must be permissible:
+        <itemizedlist>
+            <listitem><para>step a: issue a BLAH_JOB_SUBMIT command</para></listitem>
+            <listitem><para>step b: read the job_local_id in the result line</para></listitem>
+            <listitem><para>step c: store the job_local_id persistently</para></listitem>
+            <listitem><para>step d: subsequently kill and restart the BLAHP server process</para></listitem>
+            <listitem><para>step e: issue a BLAH_JOB_CANCEL command, passing it the stored job_local_id value 
+                obtained in step (b).</para></listitem>
+        </itemizedlist></para></listitem>
+</itemizedlist>
+</para>
+<para>
+Example:
+<screen>
+  S: BLAH_JOB_SUBMIT 2 [\ Cmd\ =\ "/usr/bin/test.sh";\ Args\ =\ "'X=3:Y=2'";
+     \ Env\ =\ "VAR1=56568";\ In\ =\ "/dev/null";\ Out\ =\ "/home/StdOutput";
+     \ Err\ =\ "/home/error";\ x509userproxy\ =\ "/home/123.proxy";\ Stagecmd
+     \ =\ TRUE;\ Queue\ =\ "short";\ GridType\ =\ "pbs";\ ]'
+  R: S
+  S: RESULTS
+  R: 2 0 No\ error pbs/20051012/2957
+</screen>
+</para>
+</section>
 
-</section><!-- BLAH_cms_struct -->
+<section id="BLAH_job_cancel">
+<title>BLAH_JOB_CANCEL</title>
+<para>
+This function removes an IDLE job request, or kill all processes associated with a RUNNING job,
+releasing any associated resources.
+</para>
+<para>
+Request Line: BLAH_JOB_CANCEL &lt;sp&gt; &lt;reqid&gt; &lt;sp&gt; &lt;job_local_id&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+    <listitem><para>job_local_id = job_local_id (as returned from BLAH_JOB_SUBMIT) of the job
+    to be canceled.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: &lt;result&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request
+    (meaning that the request is now pending), or an "E" for error on the parse of the request or
+    its arguments (e.g. an unrecognized or unsupported command, or for missing or malformed arguments).
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Example:
+<screen>
+  S: BLAH_JOB_CANCEL 1 pbs/20051012/2957.grid001.mi.infn.it
+  R: S
+  R: R
+  S: RESULTS
+  R: S 1
+  R: 1 0 No\ error
+</screen>
+</para>
+</section>
+
+<section id="BLAH_job_status">
+<title>BLAH_JOB_STATUS</title>
+<para>
+Query and report the current status of a submitted job.
+</para>
+<para>
+Request Line: BLAH_JOB_STATUS &lt;sp&gt; &lt;reqid&gt; &lt;sp&gt; &lt;job_local_id&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+    <listitem><para>job_local_id = job_local_id (as returned from BLAH_JOB_SUBMIT) of the job whose
+    status is desired.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: &lt;result&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request
+    (meaning that the request is now pending), or an "E" for error on the parse of the request or
+    its arguments (e.g. an unrecognized or unsupported command, or for missing or malformed arguments).
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;sp&gt; 
+&lt;job_status&gt; &lt;sp&gt; &lt;result-classad&gt; &lt;CRLF&gt; 
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+    <listitem><para>job_status = if the result_code is 0 (success), then job_status is set to an integer
+    based upon the status of the job as follows:
+    <itemizedlist>
+        <listitem><para>1 IDLE (job is waiting on the batch system queue)</para></listitem>
+        <listitem><para>2 RUNNING (job is executing on a worker node)</para></listitem>
+        <listitem><para>3 REMOVED (job was successfully cancelled)</para></listitem>
+        <listitem><para>4 COMPLETED (job completed its execution on the batch system)</para></listitem>
+        <listitem><para>5 HELD (job execution is suspended; job is still in the batch 
+        system queue)</para></listitem>
+    </itemizedlist>
+    </para></listitem>
+    <listitem><para>result-classad = Aggregate information about the job status. The classad format
+    can vary with the local batch system. Typically, the following attributes are defined:
+    <itemizedlist>
+        <listitem><para>JobStatus : job status - same codes as described above</para></listitem>
+         <listitem><para>BatchjobId : Job ID as known to the local batch system</para></listitem>
+        <listitem><para>ExitCode : Termination code - only for finished jobs</para></listitem>
+        <listitem><para>ExitReason : Exit reason, if available - only for finished jobs</para></listitem>
+        <listitem><para>WorkerNode : When available, FQDN of the worker node - only for 
+        running jobs</para></listitem>
+     </itemizedlist>
+     </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Example:
+<screen>
+  S: BLAH_JOB_STATUS 1 pbs/20051012/2958.grid001.mi.infn.it
+  R: S
+  R: R
+  S: RESULTS
+  R: S 1
+  R: 1 0 No\ Error 2 [\ BatchjobId\ =\ "2958.grid001.mi.infn.it";
+     \ JobStatus\ =\ 2;\ WorkerNode\ =\ "\ grid001.mi.infn.it"\ ]
+</screen>
+</para>
+</section>
+
+<section id="BLAH_job_status_all">
+<title>BLAH_JOB_STATUS_ALL</title>
+<para>
+This command is only available if the BLAH local job registry file is configured in the BLAH config file
+(job_registry attribute) and supported by the active batch system. Query and report the current status of
+all jobs managed by the BLAH server.
+</para>
+<para>
+Request Line: BLAH_JOB_STATUS_ALL &lt;sp&gt; &lt;reqid&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: &lt;result&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request
+    (meaning that the request is now pending), or an "E" for error on the parse of the request or
+    its arguments (e.g. an unrecognized or unsupported command, or for missing or malformed arguments).
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;sp&gt;
+&lt;result-classad&gt; &lt;CRLF&gt; 
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+    <listitem><para>result-classad = List of classads containing aggregate information about the job
+    status. In addition to the attributes defined for the output of the BLAH_JOB_STATUS command,
+    as the status info comes from a local cache, the following attributes may also be present:
+    <itemizedlist>
+        <listitem><para>BlahJobId: Job ID as known to the BLAH layer. Typically a decorated 
+        form of BatchJobId</para></listitem>
+        <listitem><para>CreateTime: Seconds since the Unix epoch at the time the first job info was
+        inserted into the cache.</para></listitem>
+        <listitem><para>ModifiedTime: Seconds since the Unix epoch when the most recent modification
+        of the job info occurred.</para></listitem>
+     </itemizedlist>
+     </para></listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section id="BLAH_job_status_select">
+<title>BLAH_JOB_STATUS_SELECT</title>
+<para>
+This command is only available if the BLAH local job registry file is configured in the BLAH config file
+(job_registry attribute) and supported by the active batch system. Query and report the current status of
+all jobs managed by the BLAH server.
+</para>
+<para>
+Request Line: BLAH_JOB_STATUS_SELECT &lt;sp&gt; &lt;reqid&gt; &lt;sp&gt; &lt;selection expression&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+    <listitem><para>selection expression = Classad expression defining select requirements on the returned
+    job ads (e.g.: JobStatus ==2).</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: &lt;result&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request
+    (meaning that the request is now pending), or an "E" for error on the parse of the request or
+    its arguments (e.g. an unrecognized or unsupported command, or for missing or malformed arguments).
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;sp&gt;
+&lt;result-classad&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+    <listitem><para>result-classad = List of classads containing aggregate information about the
+    status of the jobs that satisfy the selection requirement. The format is the same as for the
+    BLAH_JOB_STATUS_ALL command.</para></listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section id="BLAH_job_signal">
+<title>BLAH_JOB_SIGNAL</title>
+<para>
+Send a signal (if possible) to a specified job. This has to be in the RUNNING status.
+</para>
+<para>
+Request Line: BLAH_JOB_SIGNAL &lt;sp&gt; &lt;reqid&gt; &lt;sp&gt; &lt;job_local_id&gt; &lt;sp&gt;
+&lt;signal&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+    <listitem><para>job_local_id = job_local_id (as returned from BLAH_JOB_SUBMIT)
+    of the job whose status is desired.</para></listitem>
+    <listitem><para>signal = an integer with the signal to send</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line:&lt;result&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request
+    (meaning that the request is now pending), or an "E" for error on the parse of the request or
+    its arguments (e.g. an unrecognized or unsupported command, or for missing or malformed arguments).
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;sp&gt;
+&lt;job_status&gt; &lt;CRLF&gt; 
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+    <listitem><para>job_status = if the result_code is 0 (success), then job_status is set to an
+    integer based upon the status of the job as follows (compare above):
+    <itemizedlist>
+        <listitem><para>1.IDLE</para></listitem>
+        <listitem><para>2. RUNNING</para></listitem>
+        <listitem><para>3. REMOVED</para></listitem>
+        <listitem><para>4. COMPLETED</para></listitem>
+        <listitem><para>5. HELD</para></listitem>
+    </itemizedlist>
+    </para></listitem>     
+</itemizedlist>
+</para>
+</section>
+
+<section id="BLAH_job_refresh_proxy">
+<title>BLAH_JOB_REFRESH_PROXY</title>
+<para>
+Renew the proxy of an already submitted job. The job has to be in IDLE, RUNNING or HELD status.
+</para>
+<para>
+Request Line: BLAH_JOB_REFRESH_PROXY &lt;sp&gt; &lt;reqid&gt; &lt;sp&gt; &lt;job_local_id&gt;
+&lt;sp&gt; &lt;proxy_file&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+    <listitem><para>job_local_id = job_local_id (as returned from BLAH_JOB_SUBMIT) of the job
+    whose proxy has to be renewed.</para></listitem>
+    <listitem><para>proxy_file = path to the fresh proxy file.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: &lt;result&gt; &lt;CRLF&gt;
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request
+    (meaning that the request is now pending), or an "E" for error on the parse of the request or
+    its arguments (e.g. an unrecognized or unsupported command, or for missing or malformed arguments).
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Example:
+<screen>
+  S: BLAH_JOB_REFRESH 1 123.proxy
+  R: S
+  R: R
+  S: RESULTS
+  R: S 1
+  R: 1 0 No\ Error
+</screen>
+</para>
+</section>
+
+<section id="BLAH_job_hold">
+<title>BLAH_JOB_HOLD</title>
+<para>
+This function always puts an IDLE job request in a HELD  status. If the job is already running RUNNING
+it can be HELD too, depending whether the underlying batch system supports this feature.
+</para>
+<para>
+Request Line: BLAH_JOB_HOLD &lt;sp&gt; &lt;reqid&gt; &lt;sp&gt; &lt;job_local_id&gt; &lt;crlf&gt; 
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+    <listitem><para>job_local_id = job_local_id (as returned from BLAH_JOB_SUBMIT) of the job to be
+    canceled.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: &lt;result&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request
+    (meaning that the request is now pending), or an "E" for error on the parse of the request or
+    its arguments (e.g. an unrecognized or unsupported command, or for missing or malformed arguments).
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Example:
+<screen>
+  S: BLAH_JOB_HOLD 1 pbs/20051012/2957.grid001.mi.infn.it
+  R: S
+  R: R
+  S: RESULTS
+  R: S 1
+  R: 1 0 No\ error
+</screen>
+</para>
+</section>
+
+<section id="BLAH_job_resume">
+<title>BLAH_JOB_RESUME</title>
+<para>
+This function puts an HELD job request in the status it was before the holding action.
+</para>
+<para>
+Request Line: BLAH_JOB_RESUME &lt;sp&gt; &lt;reqid&gt; &lt;sp&gt; &lt;job_local_id&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>reqid = non-zero integer Request ID</para></listitem>
+    <listitem><para>job_local_id = job_local_id (as returned from BLAH_JOB_SUBMIT) of the job to be
+    canceled.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: &lt;result&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>result = the character "S" (no quotes) for successful submission of the request
+    (meaning that the request is now pending), or an "E" for error on the parse of the request or
+    its arguments (e.g. an unrecognized or unsupported command, or for missing or malformed arguments).
+    </para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: &lt;reqid&gt; &lt;sp&gt; &lt;result-code&gt; &lt;sp&gt; &lt;error-string&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+    <listitem><para>result-code = integer equal to 0 on success, or an error code</para></listitem>
+    <listitem><para>error-string = description of error</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Example:
+<screen>
+  S: BLAH_JOB_RESUME 1 pbs/20051012/2957.grid001.mi.infn.it
+  R: S
+  R: R
+  S: RESULTS
+  R: S 1
+  R: 1 0 No\ error
+</screen>
+</para>
+</section>
+
+<section id="BLAH_set_glexedn">
+<title>BLAH_SET_GLEXEC_DN</title>
+<para>
+This function enables local user mapping via GLEXEC for all subsequent actions. The call is synchronous
+and the effect is immediate.
+</para>
+<para>
+Request Line: BLAH_SET_GLEXEC_DN &lt;sp&gt; &lt;user_proxy&gt; &lt;sp&gt; &lt;ssl_client_certificate&gt;
+&lt;sp&gt; &lt;not_limited&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>user_proxy Path to a valid GSI proxy file. This will be optionally
+    (when not_limited == 0) turned into a  limited (delegated) proxy and be made available via GLEXEC to
+    the user job. (The delegated proxy path is set in the GLEXEC_SOURCE_PROXY enviroment variable prior
+    to the GLEXEC call).</para></listitem>
+    <listitem><para>ssl_client_certificate Path to a valid GSI proxy file. Can be the same as user_proxy.
+    This is the client certificate that is used for access to GLEXEC and local user mapping (it is set in
+    the GLEXEC_CLIENT_CERT environment variable prior to the GLEXEC call).</para></listitem>
+    <listitem><para>not_limited If this argument is set to a numeric value not equal to zero, the supplied
+    proxy will not be limited (delegated).</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: one of the following
+<itemizedlist>
+    <listitem><para>S &lt;sp&gt; &lt;action description&gt; &lt;crlf&gt; - in case 
+    of success</para></listitem>
+    <listitem><para>F &lt;crlf&gt; - in case of failure</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: None.
+</para>
+<para>
+Example: 
+<screen>
+  S: BLAH_SET_GLEXEC_DN /path/test.proxy /path/test.proxy 0
+  R: S Glexec\ mode\ on
+</screen>
+</para>
+</section>
+
+<section id="BLAH_set_glexeoff">
+<title>BLAH_SET_GLEXEC_OFF</title>
+<para>
+This command unconditionally disables user mapping via GLEXEC for all subsequent actions.
+The call is synchronous and the effect is immediate.
+</para>
+<para>
+Request Line:  BLAH_SET_GLEXEC_OFF &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>reqid = integer Request ID, set to the value specified in the corresponding
+    Request Line.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: one of the following
+<itemizedlist>
+    <listitem><para>S &lt;sp&gt; &lt;action-description&gt; &lt;crlf&gt; - in case
+    of success</para></listitem>
+    <listitem><para>F &lt;crlf&gt; - in case of failure</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: None.
+</para>
+<para>
+Example:
+<screen>
+  S: BLAH_SET_GLEXEC_OFF
+  R: S Glexec\ mode\ off
+</screen>
+</para>
+</section>
+
+<section id="BLAH_cache_proxy">
+<title>CACHE_PROXY_FROM_FILE</title>
+<para>
+This command is only available if enable_glexec_from_condor is set to 'yes' in the BLAHPD config file.
+Read a GSI proxy from a specified file, and store it under the specified symbolic name.
+Unlike other GAHPs, and because this function is only used to trigger GLEXEC access which requires access
+to a proxy file,  BLAH does not read and cache the proxy contents but only the file name. Changes to the
+file will affect the use of the stored proxy. The proxy name caching is lost when the BLAHP server terminates.
+The intent of this command is to allow the BLAHP server to capture and use different proxy files for
+different jobs. Other commands (e.g. by USE_CACHED_PROXY) may later be reference the given cached proxy file
+by its symbolic name. USE_CACHED_PROXY has the side effect of enabling GLEXEC.
+</para>
+<para>
+Request Line:CACHE_PROXY_FROM_FILE &lt;sp&gt; &lt;id&gt; &lt;sp&gt; &lt;path-to-local-proxy-file&gt; &lt;crlf&gt;
+<itemizedlist>
+    <listitem><para>&lt;id&gt; = a symbolic name which will be used to reference the given proxy.
+    </para></listitem>
+    <listitem><para>&lt;path-to-local-proxy-file&gt; = a fully-qualified pathname to a file local to the BLAHP
+    server which contains a valid GSI proxied certificate.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Return Line: one of the following:
+<itemizedlist>
+    <listitem><para>S &lt;sp&gt; &lt;action-description&gt; &lt;crlf&gt;</para></listitem>
+    <listitem><para>F &lt;sp&gt; &lt;error-string&gt; &lt;crlf&gt;Upon success, use the "S" version;
+    if not recognized, use the "F" version. 
+	<itemizedlist>
+    	<listitem><para>error-string = brief string description of the error, appropriate for reporting to
+    	a human end-user.</para></listitem>
+	</itemizedlist>
+	</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line:None.
+</para>
+<para>
+Example:
+<screen>
+  S: CACHE_PROXY_FROM_FILE 1 /path/test.proxy
+  R: S Proxy\ cached
+</screen>
+</para>
+</section>
+
+<section id="BLAH_used_cache_proxy">
+<title>USE_CACHED_PROXY</title>
+<para>
+This command is only available if enable_glexec_from_condor is set to 'yes' in the BLAHPD config file.
+Sets the proxy previously cached under the specified name, as the "active" proxy. Enable user mapping via
+GLEXEC for all subsequent actions. The active proxy will be used for GLEXEC user mapping, it will remain active
+until it is changed via the next invocation of USE_CACHED_PROXY. The proxy must have been previously cached
+(under the specified name) using CACHE_PROXY_FROM_FILE command. This command allows the BLAHP server to
+simultaneously act on behalf of two or more jobs that require
+</para>
+<para>
+Request Line: USE_CACHED_PROXY &lt;sp&gt; &lt;id&gt; &lt;crlf&gt; &lt;id&gt; = the symbolic name of the proxy
+to use
+</para>
+<para>
+Return Line: One of the following:
+<itemizedlist>
+    <listitem><para>S &lt;sp&gt; &lt;action-description&gt; &lt;crlf&gt;</para></listitem>
+    <listitem><para>F &lt;sp&gt; &lt;error-string&gt; &lt;crlf&gt; Upon success, use the "S" version;
+    if not recognized, use the "F" version.
+    <itemizedlist>
+    	<listitem><para>error-string = brief string description of the error, appropriate for reporting
+    	to a human end-user.</para></listitem>
+	</itemizedlist>
+	</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Result Line: None.
+</para>
+<para>
+Example:
+<screen>
+  S: USE_CACHED_PROXY 1 
+  R: S Glexec\ proxy\ set\ to\ /path/test.proxy\ (dir\ IWGRP\ bit\ already\ on)
+</screen>
+</para>
+</section>
 
 </section><!-- end of BLAH_syntax -->
 
+<section id="BLParser">
+<title>BLParser</title>
+<para>
+To obtain efficient access and prompt update to the current status of BLAH active jobs, a 'log parser'
+daemon was developed for LSF and PBS. The submit and status scripts can make optional use of the batch
+log parser to increase their efficiency.
+</para>
+<para>
+Here's a description of the semantics of the batch log parser (BLParser).
+</para>
+<para>
+The BLParser listens on a network socket and replies to a set of mandatory and a set of optional queries
+(optional queries can be used for info and debug).
+</para>
+<para>
+Here is the list of mandatory queries and their replies:
+<itemizedlist>
+    <listitem><para>BLAHJOB/&lt;blahjob-id&gt; &lt;lrms-jobid&gt;</para></listitem>
+    <listitem><para>&lt;date-yyyymmdd&gt;/&lt;lrms-jobid&gt; a classad like this:
+    <screen>
+    [
+      BatchJobId=&lt;lrms-jobid&gt; 
+	  Workernode=&lt;workernode&gt;
+	  JobStatus=&lt;jobstatus&gt; 
+	  LRMSSubmissionTime=&lt;submission time&gt; 
+	  LRMSStartRunningTime=&lt;start time&gt; 
+	  LRMSCompletedTime=&lt;finish time&gt;
+	  ExitReason=&lt;exitreason&gt; 
+	  ExitCode=&lt;exit code&gt;
+	]/pr_removal
+	</screen>
+	where pr_removal is a flag that told the status script if the proxy file 
+	has to be removed (when job is killed or finished) or not.</para></listitem>
+    <listitem><para>CREAMPORT =&gt; port where cream can connect to the parser.</para></listitem>
+    <listitem><para>TEST =&gt; print Y&lt;lrmsname&gt; (e.g. YLSF YPBS). This query is used to know
+    if a parser is active. This is useful when in config file is specified more than one parser 
+    to try: if the first does not reply to the TEST query the next one is tried.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+These are optional queries and their replies:
+<itemizedlist>
+    <listitem><para>HELP =&gt; print command list</para></listitem>
+    <listitem><para>VERSION =&gt; print version</para></listitem>
+    <listitem><para>TOTAL =&gt; print total number of jobs cached in the parser</para></listitem>
+    <listitem><para>LISTALL =&gt; print jobid of all jobs cached in the parser</para></listitem>
+    <listitem><para>LISTF[/&lt;first-n-jobid&gt;] =&gt; print first n jobid </para></listitem>
+    <listitem><para>LISTL[/&lt;last-n-jobid&gt;] =&gt; print last n jobid</para></listitem>
+</itemizedlist>
+</para>
+<para>
+  The BLParser includes an option to notify to a client (typically the
+  CREAM service) every state change in CREAM-managed jobs. CREAM sends to 
+  the parser a string like this:
+  <screen>STARTNOTIFY/&lt;date-yyyymmdd&gt;</screen>
+  atfer that string the parser sends back to cream every state change for 
+  cream job since the date contained in the string with lines like this:
+  <screen>NTFDATE/&lt;classad&gt;</screen>
+  where &lt;classad&gt; is a classad like the one sent in reply to 
+  &lt;date-yyyymmdd&gt;/&lt;lrms-jobid&gt; query.
+</para>
+<para>
+  After that parser will sent to cream every new state change for cream jobs.
+  Cream can change the default prefix (cream_) used to identify tracked jobs 
+  among all other jobs with this command:
+  <screen>CREAMFILTER/&lt;creamfilter&gt;</screen>
+  where &lt;creamfilter&gt; should be a string like crXXX_ (XXX can be any 
+  character [a-z],[A-Z],[0-9]).
+  This command has to sent before STARTNOTIFY.
+</para>
+<para>
+  There is a startup script for the BLParser that reads all the parameters 
+  from a config file. 
+  It is possible to set the debug level, the debug log file, the log file 
+  location; it is also possible to start different parsers listening on 
+  different ports with the same startup script.    
+</para>
+</section><!-- end of BLParser -->
+
+<section id="NewParser">
+<title>New Parser Scenario</title>
+<para>
+The old BLParser is now splitted in two different daemons: 
+<itemizedlist>
+    <listitem><para>BUpdater (that is specific for each batch system:there are BUpdaterLSF,
+    BUpdaterPBS and BUpdaterCondor)</para></listitem>
+    <listitem><para>BNotifier that is the same for all batch systems.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Both daemons are now automatically launched and controlled by the blahpd daemon so there is no need
+for a startup script.
+The main differences between this approach and the old one are that the daemons run as non privileged
+user and that the informations about jobs are collected using the batch system native command (as bhist,
+bjobs, qstat...) and are saved in a db file on disk called job registry.
+These informations are asynchronously notified to CREAM by BNotifier daemon.
+</para>
+<para>
+It is possible to configure some parameter in the blah.config file:
+<itemizedlist>
+    <listitem><para>_bupdater_path_ and _bnotifier_path_: if this is set to the bupdater (or bnotifier)
+    complete path (e.g. /opt/glite/bin/BUpdaterLSF) blahpd takes care of starting and periodically check
+    the status of the daemon. If it is not set the daemons should be started by hand.</para></listitem>
+    <listitem><para>_bupdater_pidfile_ and _bnotifier_pidfile_: this are used to check the daemons status
+    by blahpd (e.g. /var/tmp/bupdater.pid).</para></listitem>
+    <listitem><para>_job_registry_: is the complete path to the job registry location (/var/tmp/job_registry.db).
+    </para></listitem>
+    <listitem><para>_bupdater_debug_level_: set the debug level (1,2,3)</para></listitem>
+    <listitem><para>_bupdater_debug_logfile_: set the location of the debug log file</para></listitem>
+    <listitem><para>_async_notification_host_: hostname where the notification should be sent</para></listitem>
+    <listitem><para>_async_notification_port_: port where to send notifications</para></listitem>
+    <listitem><para>_purge_interval_: how old (in seconds) a job registry entry has to be before it is
+    purged.</para></listitem>
+    <listitem><para>_finalstate_query_interval_: the query that search for finished jobs is executed every
+    finalstate_query_interval seconds (default:30)</para></listitem>
+    <listitem><para>_alldone_interval_: after that interval an unseen job is set as done (status = 4) and
+    exitstatus = -1 (default:600)</para></listitem>
+    <listitem><para>_bupdater_loop_interval_: the updater main lop is executed every bupdater_loop_interval
+    seconds (default:5)</para></listitem>
+    <listitem><para>_blah_graceful_kill_mappable_cmd_: Command to use when terminating processes via a user
+    mapping tool (glexec or SUDO). Default is /bin/kill</para></listitem>
+    <listitem><para>_blah_graceful_kill_timeout_: Total number of seconds a parent process will wait for a child
+    to terminate after sending it the first termination (SIGTERM) signal. During this time, and until the child
+    process terminates, the parent will send SIGTERM to che child once a second before blah_graceful_kill_timeout/2
+    seconds have elapsed, then it will send SIGKILL once a second. Defaults to 20 seconds.</para></listitem>
+    <listitem><para>_blah_children_restart_interval_:  Mininum time in seconds that has to elapse before blahpd
+    tries restarting one of the children processes it controls. Defaults to 150 seconds.</para></listitem>
+    <listitem><para>_blah_require_proxy_on_submit_:  Set to boolean 'true' to generate an error when the X509Proxy
+    attribute is missing from the job description in the BLAH_JOB_SUBMIT command. Set to boolean 'false'
+    if job submission without a valid proxy is allowed. Defaults to 'false'.</para></listitem>
+    <listitem><para>_blah_enable_glexec_from_condor_: Set to boolean 'true' to make blahpd recognize the following
+    three commands: CACHE_PROXY_FROM_FILE, USE_CACHED_PROXY, UNCACHE_PROXY. User mapping via GLEXEC will be
+    automatically enabled when the USE_CACHED_PROXY command is received. This is to allow user switching via
+    glexec based on the active proxy for a given user, as cached by the Condor gridmanager.
+    Defaults to 'false'.</para></listitem>
+    <listitem><para>_blah_disable_wn_proxy_renewal_: When set to boolean 'true', use of the BPRclient/server tool
+    to delegate or send renewed X509 proxies to a job executing node will be entirely disabled.
+    Defaults to 'false'.</para></listitem>
+    <listitem><para>_blah_delegate_renewed_proxies_: When set to boolean 'true', X509 proxies sent to job worker
+    nodes via the BPRclient/server tool will be delegated instead of being copied over the wire. Defaults to 'false'
+    as many Globus tools (including gridftp) will reject access when a limited -and- delegated proxy
+    is presented.</para></listitem>
+    <listitem><para>_blah_graceful_kill_glexecable_cmd_format_</para></listitem>
+</itemizedlist>
+</para>
+</section><!-- end of NewParser -->
 
 
 
