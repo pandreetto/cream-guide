@@ -52,6 +52,7 @@ Contents:
 .. toctree::
 
    Overview
+   Puppet_Conf
    User_Guide
    JDL_Guide
    BLAH_Guide
@@ -65,7 +66,7 @@ Indices and tables
 EOF
 fi
 
-PAGE_LIST="Overview User_Guide JDL_Guide BLAH_Guide"
+PAGE_LIST="Overview Puppet_Conf User_Guide JDL_Guide BLAH_Guide"
 
 # Some workarounds
 for item in $PAGE_LIST ; do
