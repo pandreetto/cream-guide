@@ -1,13 +1,14 @@
 #!/bin/bash
 
 mkdir -p build/prestage
-mkdir -p build/rts/_build
-mkdir -p build/rts/_static
-mkdir -p build/rts/_templates
-mkdir -p build/pages
+mkdir -p build/rst/_build
+mkdir -p build/rst/_static
+mkdir -p build/rst/_templates
+mkdir -p build/rst/images
+mkdir -p build/pages/images
 
-if [ ! -e build/rts/conf.py ] ; then
-    cat << EOF > build/rts/conf.py
+if [ ! -e build/rst/conf.py ] ; then
+    cat << EOF > build/rst/conf.py
 import sys
 import os
 extensions = []
@@ -42,8 +43,8 @@ texinfo_documents = [
 EOF
 fi
 
-if [ ! -e build/rts/index.rst ] ; then
-    cat << EOF > build/rts/index.rst
+if [ ! -e build/rst/index.rst ] ; then
+    cat << EOF > build/rst/index.rst
 Welcome to CREAM_Guide documentation!
 =====================================
 
@@ -66,6 +67,9 @@ Indices and tables
 EOF
 fi
 
+cp en-US/images/*.png build/rst/images
+cp en-US/images/*.png build/pages/images
+
 PAGE_LIST="Overview Puppet_Conf User_Guide JDL_Guide BLAH_Guide"
 
 # Some workarounds
@@ -75,9 +79,12 @@ for item in $PAGE_LIST ; do
 done
 
 for item in $PAGE_LIST ; do
-    pandoc -f docbook -t rst -o build/rts/${item}.rst build/prestage/${item}.xml
+    pandoc -f docbook -t rst -o build/rst/${item}.rst build/prestage/${item}.xml
 done
 
-sphinx-build -b html build/rts build/pages/
+# Some workarounds
+sed -i -e 's|transitions:|transitions:\n\n.. image:: images/cream_job_states.png|g' build/rst/User_Guide.rst
+
+sphinx-build -b html build/rst build/pages/
 
 
