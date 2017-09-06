@@ -172,6 +172,8 @@ These are the basic configuration parameters for BLAH:
     accepted by CREAM for the execution of commands by BLAH, default 300 seconds</para></listitem>
     <listitem><para><literal>creamce::job::prefix</literal> (string): The prefix to be used for the BLAH job id, default
     "cream_"</para></listitem>
+    <listitem><para><literal>blah::shared_directories</literal> (list): A list of of paths that are shared among batch
+    system head and worker nodes; the empty list is the default value</para></listitem>
 </itemizedlist>
 </para>
 <para>
@@ -540,28 +542,44 @@ for definitions are:
         default false, just one administrator group is supported</para></listitem>
     </itemizedlist>
     </para></listitem>
-    <listitem><para><literal>users</literal> (hash): The description of the pool account, the parameter is 
-    <literal>mandatory</literal>, each key of the hash is the pool account prefix, each value is a hash with the
-    following keys:
+    <listitem><para><literal>users</literal> (hash): The description of pool accounts or a static users, the parameter 
+    is <literal>mandatory</literal>, each key of the hash is the pool account prefix or the user name for a static
+    user, each value is a hash with the following keys:
     <itemizedlist>
-        <listitem><para><literal>first_uid</literal> (integer): The initial number for the unix user id of the pool
-        account, the other ids are obtained incrementally with step equals to 1, the parameter is 
-        <literal>mandatory</literal></para></listitem>
         <listitem><para><literal>name_pattern</literal> (list): The pattern used to create the user name of the pool
-        account, the variables used for the  substitutions are "prefix", the pool account prefix, and "index", the
-        current user id; the expression is described in ruby
+        account, the variables used for the  substitutions are <literal>prefix</literal>, the pool account prefix,
+        and <literal>index</literal>, a consecutive index described below; the expression is explained in the ruby
         <ulink url="https://ruby-doc.org/core-2.2.0/Kernel.html#method-i-sprintf">guide</ulink>,
         default value is <screen>%&lt;prefix&gt;s%03&lt;index&gt;d</screen></para></listitem>
-        <listitem><para><literal>groups</literal> (list): The list of group for the current account, the first element
-        of the list is the primary group, each element must be defined in <literal>groups</literal>,the parameter is
-        <literal>mandatory</literal></para></listitem>
-        <listitem><para><literal>pool_size</literal> (integer): The number of user in the current pool account, the
-        default value is global definition contained into <literal>creamce::default_pool_size</literal>
-        </para></listitem>
+        <listitem><para><literal>fqan</literal> (list): The list of VOMS Fully Qualified Attribute Name associated with
+        the user of the pool account. The first element of the list is considered the primary FQAN and it is used
+        to calculate the primary group of the user; the other FQANs are used to calculate the secondary groups.
+        The mapping between FQANs and groups refers to the <literal>groups</literal> hash for the given VO. For 
+        further details about the mapping algorithm refer to the authorization
+        <ulink url="https://twiki.cern.ch/twiki/bin/view/EGEE/AuthZOH#Account_and_Group_Mapping">guide</ulink>.
+        The parameter is <literal>mandatory</literal></para></listitem>
         <listitem><para><literal>accounts</literal> (list): The list of SLURM accounts associated with this set of
         users, the parameter is <literal>mandatory</literal> if <literal>slurm::config_accounting</literal>
         is set to true</para></listitem>
     </itemizedlist>
+    A pool account can be defined in two different ways. If the user IDs are consecutive the parameters required are:
+    <itemizedlist>
+        <listitem><para><literal>first_uid</literal> (integer): The initial number for the unix user id of the pool
+        account, the other ids are obtained incrementally with step equals to 1</para></listitem>
+        <listitem><para><literal>pool_size</literal> (integer): The number of user in the current pool account, the
+        default value is global definition contained into <literal>creamce::default_pool_size</literal>. If the value
+        for the pool size is equal to zero the current definition must be considered for a static user.
+        </para></listitem>
+    </itemizedlist>
+    If the user IDs are not consecutive their values must be specified with the parameter:
+    <itemizedlist>
+        <listitem><para><literal>uid_list</literal> (list): The list of user ID; the pool account size is equal to
+        the number of elements of the list. 
+        </para></listitem>
+    </itemizedlist>
+    In any case the user name is created using the pattern specified by the parameter <literal>name_pattern</literal>
+    where the index ranges from 1 to the pool account size (included). It is possible to shift the range of the indexes
+    using the parameter <literal>creamce::username_offset</literal>.
     </para></listitem>
     <listitem><para><literal>vo_app_dir</literal> (_string_): The path of a shared directory available for application
     data for the current Virtual Organization, as describe by Info.ApplicationDir in GLUE 1.3.</para></listitem>
@@ -581,6 +599,7 @@ for definitions are:
 ---
 creamce::use_argus :                 false
 creamce::default_pool_size :         10
+creamce::username_offset :           1
 
 creamce::vo_table :
     dteam : { 
@@ -606,12 +625,13 @@ creamce::vo_table :
             dteamprod : { fqan : [ "/dteam/prod/ROLE=developer" ], gid : 9002 }
         },
         users : {
-            dteamusr : { first_uid : 6000, groups : [ dteam ], 
+            dteamusr : { first_uid : 6000, fqan : [ "/dteam" ], 
                          name_pattern : "%&lt;prefix>s%03%&lt;index>d" },
-            dteamsgmusr : { first_uid : 6100, groups : [ dteamsgm, dteam ], pool_size : 5,
-                            name_pattern : "%&lt;prefix&gt;s%02&lt;index&gt;d" },
-            dteamprodusr : { first_uid : 6200, groups : [ dteamprod, dteam ], pool_size : 5,
-                             name_pattern : "%&lt;prefix&gt;s%02&lt;index&gt;d" }
+            dteamsgmusr : { first_uid : 6100, fqan : [ "/dteam/sgm/ROLE=developer", "/dteam" ],
+                            pool_size : 5, name_pattern : "%&lt;prefix&gt;s%02&lt;index&gt;d" },
+            dteamprodusr : { fqan : [ "/dteam/prod/ROLE=developer", "/dteam" ],
+                             name_pattern : "%&lt;prefix&gt;s%02&lt;index&gt;d",
+                             uid_list  : [ 6200, 6202, 6204, 6206, 6208 ] }
         }
     }
 </screen>
