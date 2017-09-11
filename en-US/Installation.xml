@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+<chapter id="CREAM_Inst">
+<title>CREAM installation</title>
+
+<section id="Req_sect">
+<title>Requirements</title>
+<para>
+The requirements for a basic installation of a CREAM site are:
+<itemizedlist>
+    <listitem><para>A system based on Cent OS version 7 or compatibile distribution.</para></listitem>
+    <listitem><para>The UMD4 extension as described in the UMD 
+    <ulink url="http://repository.egi.eu/category/umd_releases/distribution/umd-4/">guide</ulink></para></listitem>
+</itemizedlist>
+</para>
+</section><!-- end of Req_sect -->
+
+<section id="Inst_sect">
+<title>Installation</title>
+<para>
+The basic installation of a CREAM site consists on the following mandatory packages:
+<itemizedlist>
+    <listitem><para></para>canl-java-tomcat</listitem>
+    <listitem><para></para>cleanup-grid-accounts</listitem>
+    <listitem><para></para>bdii</listitem>
+    <listitem><para></para>dynsched-generic</listitem>
+    <listitem><para></para>glite-ce-cream</listitem>
+    <listitem><para></para>glite-info-provider-service</listitem>
+    <listitem><para></para>globus-gridftp-server-progs</listitem>
+    <listitem><para></para>globus-proxy-utils</listitem>
+    <listitem><para></para>glue-schema</listitem>
+    <listitem><para></para>kill-stale-ftp</listitem>
+    <listitem><para></para>lcg-expiregridmapdir</listitem>
+    <listitem><para></para>mariadb</listitem>
+    <listitem><para></para>sudo</listitem>
+</itemizedlist>
+</para>
+
+<para>
+If the authorization framework used is based on glexec the following packages are mandatory:
+<itemizedlist>
+    <listitem><para>glexec</para></listitem>
+    <listitem><para>lcas-lcmaps-gt4-interface</para></listitem>
+    <listitem><para>lcas-plugins-basic</para></listitem>
+    <listitem><para>lcas-plugins-check-executable</para></listitem>
+    <listitem><para>lcas-plugins-voms</para></listitem>
+    <listitem><para>lcmaps-plugins-basic</para></listitem>
+    <listitem><para>lcmaps-plugins-verify-proxy</para></listitem>
+    <listitem><para>lcmaps-plugins-voms</para></listitem>
+</itemizedlist>
+if the authorization framework used is based on Argus the following package is mandatory:
+<itemizedlist>
+    <listitem><para>argus-gsi-pep-callout</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+The following packages are optional:
+<itemizedlist>
+    <listitem><para>apel-parsers : if the support for APEL accounting is enabled</para></listitem>
+    <listitem><para>glite-lb-logger : if the support for the Logging and Bookkeping is enabled</para></listitem>
+    <listitem><para>info-dynamic-scheduler-lsf : if the batch system used is LSF</para></listitem>
+    <listitem><para>info-dynamic-scheduler-lsf-btools : if the batch system used is LSF</para></listitem>
+    <listitem><para>info-dynamic-scheduler-slurm : if the batch system used is SLURM</para></listitem>
+    <listitem><para>lcg-info-dynamic-scheduler-condor : if the batch system used is HTCondor</para></listitem>
+    <listitem><para>lcg-info-dynamic-scheduler-pbs : if the batch system used is TORQUE</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+The standard procedure for the installation and configuration of a CREAM site makes use of the puppet framework.
+The puppet module checks for the presence of the packages described above, and in case they're not available on the
+system it installs them.
+</para>
+
+</section><!-- end of Inst_sect -->
+
+<!-- section id="">
+<title></title>
+<para>
+</para>
+</section --><!-- end of  -->
+
+</chapter>

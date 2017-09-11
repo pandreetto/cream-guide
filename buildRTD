@@ -53,6 +53,7 @@ Contents:
 .. toctree::
 
    Overview
+   Installation
    Puppet_Conf
    User_Guide
    JDL_Guide
@@ -70,7 +71,7 @@ fi
 cp en-US/images/*.png build/rst/images
 cp en-US/images/*.png build/pages/images
 
-PAGE_LIST="Overview Puppet_Conf User_Guide JDL_Guide BLAH_Guide"
+PAGE_LIST="Overview Installation Puppet_Conf User_Guide JDL_Guide BLAH_Guide"
 
 # Some workarounds
 for item in $PAGE_LIST ; do
