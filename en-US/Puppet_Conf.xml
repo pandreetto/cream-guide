@@ -491,6 +491,8 @@ The following parameters configure the security layer and the pool account syste
     administrators list, default /etc/grid-security/admin-list</para></listitem>
     <listitem><para><literal>creamce::default_pool_size</literal> (integer): The default number of users in a pool
     account, used if <literal>pool_size</literal> is not define for a VO group, default 100</para></listitem>
+    <listitem><para><literal>creamce::create_user</literal> (boolean): False if the creation of the users of all the
+    pool accounts is disabled, default True</para></listitem>
 </itemizedlist>
 </para>
 
@@ -545,6 +547,8 @@ for definitions are:
         further details about the mapping algorithm refer to the authorization
         <ulink url="https://twiki.cern.ch/twiki/bin/view/EGEE/AuthZOH#Account_and_Group_Mapping">guide</ulink>.
         The parameter is <literal>mandatory</literal></para></listitem>
+        <listitem><para><literal>create_user</literal> (boolean): True if the creation of the user is disabled for the
+        current pool account, default is True</para></listitem>
         <listitem><para><literal>accounts</literal> (list): The list of SLURM accounts associated with this set of
         users, the parameter is <literal>mandatory</literal> if <literal>slurm::config_accounting</literal>
         is set to true</para></listitem>
@@ -613,7 +617,7 @@ creamce::vo_table :
         },
         users : {
             dteamusr : { first_uid : 6000, fqan : [ "/dteam" ], 
-                         name_pattern : "%&lt;prefix>s%03%&lt;index>d" },
+                         name_pattern : "%&lt;prefix>s%03&lt;index>d" },
             dteamsgmusr : { first_uid : 6100, fqan : [ "/dteam/sgm/ROLE=developer", "/dteam" ],
                             pool_size : 5, name_pattern : "%&lt;prefix&gt;s%02&lt;index&gt;d" },
             dteamprodusr : { fqan : [ "/dteam/prod/ROLE=developer", "/dteam" ],
@@ -690,6 +694,22 @@ by the parameter <literal>accounts</literal> of the <literal>users</literal> def
 <para>
 The HTCondor cluster must be install before the deployment of CREAM, there's no support in the CREAM CE puppet module
 for the deployment of HTCondor.
+</para>
+<para>
+The configuration parameters for HTCondor are:
+<itemizedlist>
+    <listitem><para><literal>condor::deployment_mode</literal> (string): The queue implementation model used, the value
+    can be "queue_to_schedd" or "queue_to_jobattribute", the default is "queue_to_schedd"</para></listitem>
+    <listitem><para><literal>condor_queue_attr</literal> (string): The classad attribute used to identify the queue, 
+    when the model used is "queue_to_jobattribute", <literal>mandatory</literal> if the deployment mode is
+    "queue_to_jobattribute"</para></listitem>
+    <listitem><para><literal>condor_user_history</literal> (boolean): True if condor_history should be used to get
+    the final state info about the jobs, the default is false</para></listitem>
+    <listitem><para><literal>condor::config::dir</literal> (string): The directory containing the configuration files
+    for the HTCondor installation, the default is /etc/condor/config.d</para></listitem>
+    <listitem><para><literal>condor::command_caching_filter</literal> (string): The executable for caching the batch
+    systems commands, if not specified the caching mechanism is disabled</para></listitem>
+</itemizedlist>
 </para>
 </section><!-- end of CREAM_HTCondor -->
 
