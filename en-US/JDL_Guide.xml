@@ -612,7 +612,7 @@ from the CEID and automatically fills the JDL.
 <section id="JDL_CPUNumber">
 <title>CPUNumber</title>
 <para>
-The CpuNumber attribute is an integer greater than 1 specifying the number of CPUs needed. This attribute can be used
+The CpuNumber attribute is an integer greater than 0 specifying the number of CPUs needed. This attribute can be used
 in particular for MPI jobs. Please note that this attributes allows allocating the specified number of CPUs.
 Then it is up to the job using them to run the job (e.g. via mpistart). An example of the JDL setting is:
 <screen>CpuNumber = 5;</screen>
@@ -635,7 +635,8 @@ attribute when WholeNodes is false.
 <section id="JDL_GPUNumber">
 <title>GPUNumber</title>
 <para>
-------------------------- TODO ---------------------------------
+The GPUNumber attribute is an integer greater than 0 specifying the number of accelerator devices (CUDA) required for
+executing the current job.
 </para>
 <para><emphasis>Mandatory: No</emphasis></para>
 <para><emphasis>Default: No</emphasis></para>
@@ -644,7 +645,7 @@ attribute when WholeNodes is false.
 <section id="JDL_GPUModel">
 <title>GPUModel</title>
 <para>
-------------------------- TODO ---------------------------------
+The GPUModel attribute is a string containing the model of the accelerator device (CUDA) as declared by the vendor.
 </para>
 <para><emphasis>Mandatory: No</emphasis></para>
 <para><emphasis>Default: No</emphasis></para>
@@ -660,7 +661,7 @@ The WholeNodes attribute is a boolean that indicates whether whole nodes should 
 </section>
 
 <section id="JDL_HostNumber">
-<title></title>
+<title>HostNumber</title>
 <para>
 HostNumber is an integer indicating the number of nodes the user wishes to obtain for his job. This attribute can't be
 specified along with the SMPGranularity attribute when WholeNodes is false. Please note that <literal>HostNumber</literal>
@@ -688,7 +689,10 @@ to a CREAM based CE via the WMS, the CERequirements expression is automatically 
 <literal>Requirements</literal> expression, and the value of the <literal>CeForwardParameters</literal> attribute in the
 WMS configuration file.</para>
 
-<para><emphasis>TODO: insert link to "Forward of requirements to the batch system"</emphasis></para>
+<para>
+For further details refer to the User 
+<ulink url="User_Guide.html#forward-of-requirements-to-the-batch-system">guide</ulink>.
+</para>
 
 <para><emphasis>Mandatory: No</emphasis></para>
 <para><emphasis>Default: No</emphasis></para>

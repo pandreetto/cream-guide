@@ -157,7 +157,7 @@ they are automatically uploaded on <literal>gsiftp://se.pd.infn.it/data/seredova
 </para>
 <para>
 A detailed description of the available JDL attributes and of the rules for building correct JDL files is documented in 
-the CREAM JDL <ulink url="http://wiki.italiangrid.org/twiki/bin/view/CREAM/JdlGuide">Guide</ulink>.
+the CREAM JDL <ulink url="JDL_Guide.html">guide</ulink>.
 </para>
 <para>
 The jobs submitted to a CREAM based CE are given the delegated credentials of the user who submitted it. 
@@ -686,8 +686,8 @@ anywhere, the default value is considered.
 
 <para>
 The CREAM CE allows to forward, via tha BLAH component, requirements to the batch system.
-For this purpose the JDL <literal>CERequirements</literal> attribute, described at in the CREAM JDL 
-<ulink url="http://wiki.italiangrid.org/twiki/bin/view/CREAM/JdlGuide#3_27_CERequirements">Guide</ulink>, can be used.
+For this purpose the JDL <literal>CERequirements</literal> attribute, described in the CREAM JDL 
+ <ulink url="JDL_Guide.html">guide</ulink>, can be used.
 For direct submissions to the CREAM CE (e.g. jobs submitted to the CREAM CE using the CREAM CLI 
 <literal>glite-ce-job-submit</literal> command) the CeRequirements attribute is supposed to be filled by the end-user.
 For jobs submitted to the CREAM CE via the WMS, the <literal>CeRequirements</literal> attribute is instead filled by
