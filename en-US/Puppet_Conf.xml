@@ -525,10 +525,9 @@ for definitions are:
     <itemizedlist>
         <listitem><para><literal>gid</literal> (string): The unix group id, <literal>mandatory</literal>
         </para></listitem>
-        <listitem><para><literal>fqan</literal> (list): The list of VOMS Fully Qualified Attribute Name,
-        <literal>mandatory</literal></para></listitem>
-        <listitem><para><literal>pub_admin</literal> (boolean): True if the group is the defined administrator group,
-        default false, just one administrator group is supported</para></listitem>
+        <listitem><para><literal>fqan</literal> (list): The list of VOMS Fully Qualified Attribute Names. The items
+        in the list are used to compose the group map file.
+        The parameter is <literal>mandatory</literal></para></listitem>
     </itemizedlist>
     </para></listitem>
     <listitem><para><literal>users</literal> (hash): The description of pool accounts or a static users, the parameter 
@@ -540,15 +539,21 @@ for definitions are:
         and <literal>index</literal>, a consecutive index described below; the expression is explained in the ruby
         <ulink url="https://ruby-doc.org/core-2.2.0/Kernel.html#method-i-sprintf">guide</ulink>,
         default value is <screen>%&lt;prefix&gt;s%03&lt;index&gt;d</screen></para></listitem>
-        <listitem><para><literal>fqan</literal> (list): The list of VOMS Fully Qualified Attribute Name associated with
-        the user of the pool account. The first element of the list is considered the primary FQAN and it is used
-        to calculate the primary group of the user; the other FQANs are used to calculate the secondary groups.
-        The mapping between FQANs and groups refers to the <literal>groups</literal> hash for the given VO. For 
-        further details about the mapping algorithm refer to the authorization
+        <listitem><para><literal>primary_fqan</literal> (list): The list of the primary VOMS Fully Qualified Attribute
+        Names associated with the user of the pool account. The attributes are used to calculate the primary group of
+        the user and to compose the grid-map file. The mapping between FQANs and groups refers to the 
+        <literal>groups</literal> hash for the given VO. For further details about the mapping algorithm refer to
+        the authorization
         <ulink url="https://twiki.cern.ch/twiki/bin/view/EGEE/AuthZOH#Account_and_Group_Mapping">guide</ulink>.
         The parameter is <literal>mandatory</literal></para></listitem>
+        <listitem><para><literal>secondary_fqan</literal> (list): The list of the secondary VOMS Fully Qualified
+        Attribute Names associated with the user of the pool account. The items in the list are used to calculate the
+        secondary groups of the user. The parameter is optional.</para></listitem>
         <listitem><para><literal>create_user</literal> (boolean): True if the creation of the user is disabled for the
         current pool account, default is True</para></listitem>
+        <listitem><para><literal>pub_admin</literal> (boolean): True if the pool account is the defined administrator
+        account, default false, just one administrator account is supported. The first user in the pool account, or 
+        the static user if it is the case, is selected for publishing information about VO tags.</para></listitem>
         <listitem><para><literal>accounts</literal> (list): The list of SLURM accounts associated with this set of
         users, the parameter is <literal>mandatory</literal> if <literal>slurm::config_accounting</literal>
         is set to true</para></listitem>
@@ -612,15 +617,19 @@ creamce::vo_table :
         ],
         groups : {
             dteam : { fqan : [ "/dteam" ], gid : 9000 },
-            dteamsgm : { fqan : [ "/dteam/sgm/ROLE=developer" ], gid : 9001, pub_admin : true },
+            dteamsgm : { fqan : [ "/dteam/sgm/ROLE=developer" ], gid : 9001 },
             dteamprod : { fqan : [ "/dteam/prod/ROLE=developer" ], gid : 9002 }
         },
         users : {
-            dteamusr : { first_uid : 6000, fqan : [ "/dteam" ], 
+            dteamusr : { first_uid : 6000, primary_fqan : [ "/dteam" ], 
                          name_pattern : "%&lt;prefix>s%03&lt;index>d" },
-            dteamsgmusr : { first_uid : 6100, fqan : [ "/dteam/sgm/ROLE=developer", "/dteam" ],
-                            pool_size : 5, name_pattern : "%&lt;prefix&gt;s%02&lt;index&gt;d" },
-            dteamprodusr : { fqan : [ "/dteam/prod/ROLE=developer", "/dteam" ],
+            dteamsgmusr : { first_uid : 6100, pool_size : 5,
+                            primary_fqan : [ "/dteam/sgm/ROLE=developer" ],
+                            secondary_fqan : [ "/dteam" ],
+                            name_pattern : "%&lt;prefix&gt;s%02&lt;index&gt;d",
+                            pub_admin : true },
+            dteamprodusr : { primary_fqan : [ "/dteam/prod/ROLE=developer" ],
+                             secondary_fqan : [ "/dteam" ],
                              name_pattern : "%&lt;prefix&gt;s%02&lt;index&gt;d",
                              uid_list  : [ 6200, 6202, 6204, 6206, 6208 ] }
         }
