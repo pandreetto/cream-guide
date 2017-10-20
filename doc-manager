@@ -1,0 +1,66 @@
+#!/bin/bash
+
+COMMAND=${1}
+PAGE_LIST="Overview Installation Puppet_Conf User_Guide JDL_Guide BLAH_Guide"
+
+set -e 
+
+if [ "x${COMMAND}" == "x" ] ; then
+    echo "Missing command";
+    echo "Usage: doc-manager compile                    compile the documentation"
+    echo "       doc-manager publish <comment for git>  publish the guide in readthedocs"
+    echo "       doc-manager clean                      clean up the build directory"
+    exit 1;
+fi
+
+if [ "x${COMMAND}" == "xclean" ] && [ -d build ] ; then rm -rf build; fi
+
+if [ "x${COMMAND}" == "xcompile" ] || [ "x${COMMAND}" == "xpublish" ] ; then
+
+    if [ ! -d build ] ; then
+    
+        mkdir -p build/prestage
+        mkdir -p build/pages/images
+        git clone git@github.com:pandreetto/cream-docs.git build/rst
+
+        cp en-US/images/*.png build/rst/images
+        cp en-US/images/*.png build/pages/images
+
+    fi
+
+    # Some workarounds
+    for item in $PAGE_LIST ; do
+        #xsltproc -o build/tmp/${item}.html /usr/share/xml/docbook/stylesheet/docbook-xsl/xhtml/docbook.xsl en-US/${item}.xml
+        sed -e 's|<chapter|<section|g' -e 's|</chapter|</section|g' en-US/${item}.xml > build/prestage/${item}.xml
+    done
+
+    for item in $PAGE_LIST ; do
+        pandoc -f docbook -t rst -o build/rst/${item}.rst build/prestage/${item}.xml
+    done
+
+    # Some workarounds
+    sed -i -e 's|transitions:|transitions:\n\n.. image:: images/cream_job_states.png|g' build/rst/User_Guide.rst
+
+    sphinx-build -b html build/rst build/pages/
+
+fi
+
+if [ "x${COMMAND}" == "xpublish" ] ; then
+
+    COMMENT=${2:-"Changed documentation"}
+    
+    echo "doc-manager: pushing changes in github..."
+    git add en-US/*.xml
+    git commit -m "${COMMENT}"
+    git push
+    echo "doc-manager: github is up-to-date"
+
+    echo "doc-manager: pushing changes in readthedocs..."
+    cd build/rst
+    git add *.rst
+    git commit -m "${COMMENT}"
+    git push
+    cd -
+    echo "doc-manager: readthedocs is up-to-date"
+    
+fi
