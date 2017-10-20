@@ -21,19 +21,19 @@ The requirements for a basic installation of a CREAM site are:
 <para>
 The basic installation of a CREAM site consists on the following mandatory packages:
 <itemizedlist>
-    <listitem><para></para>canl-java-tomcat</listitem>
-    <listitem><para></para>cleanup-grid-accounts</listitem>
-    <listitem><para></para>bdii</listitem>
-    <listitem><para></para>dynsched-generic</listitem>
-    <listitem><para></para>glite-ce-cream</listitem>
-    <listitem><para></para>glite-info-provider-service</listitem>
-    <listitem><para></para>globus-gridftp-server-progs</listitem>
-    <listitem><para></para>globus-proxy-utils</listitem>
-    <listitem><para></para>glue-schema</listitem>
-    <listitem><para></para>kill-stale-ftp</listitem>
-    <listitem><para></para>lcg-expiregridmapdir</listitem>
-    <listitem><para></para>mariadb</listitem>
-    <listitem><para></para>sudo</listitem>
+    <listitem><para>canl-java-tomcat</para></listitem>
+    <listitem><para>cleanup-grid-accounts</para></listitem>
+    <listitem><para>bdii</para></listitem>
+    <listitem><para>dynsched-generic</para></listitem>
+    <listitem><para>glite-ce-cream</para></listitem>
+    <listitem><para>glite-info-provider-service</para></listitem>
+    <listitem><para>globus-gridftp-server-progs</para></listitem>
+    <listitem><para>globus-proxy-utils</para></listitem>
+    <listitem><para>glue-schema</para></listitem>
+    <listitem><para>kill-stale-ftp</para></listitem>
+    <listitem><para>lcg-expiregridmapdir</para></listitem>
+    <listitem><para>mariadb</para></listitem>
+    <listitem><para>sudo</para></listitem>
 </itemizedlist>
 </para>
 
@@ -219,7 +219,9 @@ creamce::se_table :
                            type : Storm, default : true }
     cloud.pd.infn.it : { mount_dir : "/data/mount", export_dir : "/storage/export",
                          type : Dcache }
-</screen></para></listitem>
+</screen></para>
+    <para>The permissions of the file <literal>/var/lib/hiera/node/myhost.mydomain.yaml</literal>
+    must be set to <literal>600</literal>.</para></listitem>
     <listitem><para>Deployment of the host private key in
     <literal>/etc/grid-security/hostkey.pem</literal></para></listitem>
     <listitem><para>Deployment of the host certificate in

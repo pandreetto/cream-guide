@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+<chapter id="CREAM_Monitor">
+<title>CREAM monitoring</title>
+
+<para>
+The CREAM CE site is monitored with the Nagios framework and a set of specific probes.
+The service can be tested with job submission through WMS or with direct submittion (i.e. using CREAM CLI).
+The probes developed for the CREAM service must be installed on a User Interface because they use the cream-cli
+commands to monitor the CREAM ce.
+</para>
+
+<section id="Monitor_requires">
+<title>Requirements</title>
+<para>
+The required packages for the CREAM CE probes are:
+<itemizedlist>
+    <listitem><para>python (version 2.4 or greater)</para></listitem>
+    <listitem><para>python-ldap</para></listitem>
+    <listitem><para>python-suds (version 0.3.5 or greater)</para></listitem>
+    <listitem><para>openssl (version 0.9.8e-12 or greater)</para></listitem>
+    <listitem><para>nagios-submit-conf (version 0.2 or greater)</para></listitem>
+    <listitem><para>python-GridMon (version 1.1.10)</para></listitem>
+</itemizedlist>
+About the last two rpms they can be install using  the EGI 
+<ulink url="http://repository.egi.eu/sw/production/sam/1/repofiles/sam.repo">repository</ulink>
+</para>
+</section><!-- end of Monitor_requires -->
+
+
+<!-- section id="">
+<title></title>
+<para>
+</para>
+</section --><!-- end of  -->
+
+</chapter>
+
