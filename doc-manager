@@ -3,8 +3,6 @@
 COMMAND=${1}
 PAGE_LIST="Overview Installation Puppet_Conf User_Guide JDL_Guide BLAH_Guide"
 
-set -e 
-
 if [ "x${COMMAND}" == "x" ] ; then
     echo "Missing command";
     echo "Usage: doc-manager compile                    compile the documentation"
@@ -19,6 +17,21 @@ if [ "x${COMMAND}" == "xcompile" ] || [ "x${COMMAND}" == "xpublish" ] ; then
 
     if [ ! -d build ] ; then
     
+        echo "Checking required applications..."
+        which git
+        if [ $? -ne 0 ] ; then echo "Missing git package"; exit 1; fi
+        which pandoc
+        if [ $? -ne 0 ] ; then echo "Missing pandoc package"; exit 1; fi
+        which sphinx-build
+        if [ $? -ne 0 ] ; then 
+            echo "Missing python-sphinx package"
+            echo "Required themes available with package python-sphinx-rtd-theme (ubuntu)"
+            echo "or python-sphinx_rtd_theme (rhel)"
+            exit 1
+        fi
+
+        set -e 
+
         mkdir -p build/prestage
         mkdir -p build/pages/images
         git clone git@github.com:pandreetto/cream-docs.git build/rst
