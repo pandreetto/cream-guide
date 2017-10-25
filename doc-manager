@@ -13,7 +13,7 @@ fi
 
 if [ "x${COMMAND}" == "xclean" ] && [ -d build ] ; then rm -rf build; fi
 
-if [ "x${COMMAND}" == "xcompile" ] || [ "x${COMMAND}" == "xpublish" ] ; then
+if [ "x${COMMAND}" == "xcompile" ] || ([ "x${COMMAND}" == "xpublish" ] && [ ! -d build ]) ; then
 
     if [ ! -d build ] ; then
     
