@@ -1,7 +1,7 @@
 #!/bin/bash
 
 COMMAND=${1}
-PAGE_LIST="Overview Installation Puppet_Conf User_Guide JDL_Guide BLAH_Guide Monitoring"
+PAGE_LIST="Overview Installation Puppet_Conf User_Guide JDL_Guide BLAH_Guide Monitoring Releases"
 
 if [ "x${COMMAND}" == "x" ] ; then
     echo "Missing command";
