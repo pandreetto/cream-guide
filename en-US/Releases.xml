@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+<chapter id="Releases">
+<title>Releases</title>
+
+<section id="R_1_16_6">
+<title>Release 1.16.6</title>
+<para>
+The changes delivered with this release are:
+<itemizedlist>
+    <listitem><para>Support for CentOS 7</para></listitem>
+    <listitem><para>Support for accelerator devices (NVidia GPUs, MIC)</para></listitem>
+    <listitem><para>Implementation of GLUE 2.1 v.0.4 (Draft)</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+The list of packages for the CREAM services is the following:
+<table frame="all">
+<tgroup cols='3'>
+<thead>
+    <row><entry>Package</entry><entry>Version</entry><entry>Arch</entry></row>
+</thead>
+<tbody>
+    <row><entry>BLAH</entry><entry>1.22.2-1</entry><entry>x86_64</entry></row>
+    <row><entry>BLAH-debuginfo</entry><entry>1.22.2-1</entry><entry>x86_64</entry></row>
+    <row><entry>axis2</entry><entry>1.6.4-2.emi</entry><entry>noarch</entry></row>
+    <row><entry>canl-java-tomcat</entry><entry>0.2.1-1</entry><entry>noarch</entry></row>
+    <row><entry>condor-classads-blah-patch</entry><entry>0.0.1-1</entry><entry>x86_64</entry></row>
+    <row><entry>dynsched-generic</entry><entry>2.5.5-2</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-common-java</entry><entry>1.16.5-1</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-common-java-doc</entry><entry>1.16.5-1</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream</entry><entry>1.16.5-3</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-api-java</entry><entry>1.16.6-2</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-core</entry><entry>1.16.5-3</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-utils</entry><entry>1.3.6-2</entry><entry>x86_64</entry></row>
+    <row><entry>glite-ce-wsdl</entry><entry>1.15.1-1</entry><entry>noarch</entry></row>
+    <row><entry>glite-info-dynamic-ge</entry><entry>7.2.0-29.1</entry><entry>noarch</entry></row>
+    <row><entry>glite-jdl-api-java</entry><entry>3.3.2-3</entry><entry>noarch</entry></row>
+    <row><entry>glite-jdl-api-java-doc</entry><entry>3.3.2-3</entry><entry>noarch</entry></row>
+    <row><entry>info-dynamic-scheduler-lsf</entry><entry>2.3.8-3</entry><entry>noarch</entry></row>
+    <row><entry>info-dynamic-scheduler-lsf-btools</entry><entry>2.3.8-3</entry><entry>noarch</entry></row>
+    <row><entry>info-dynamic-scheduler-slurm</entry><entry>1.0.4-1</entry><entry>noarch</entry></row>
+    <row><entry>jclassads</entry><entry>2.4.0-3</entry><entry>noarch</entry></row>
+    <row><entry>kill-stale-ftp</entry><entry>1.0.1-1</entry><entry>noarch</entry></row>
+    <row><entry>lcg-info-dynamic-scheduler-condor</entry><entry>1.1-1</entry><entry>noarch</entry></row>
+    <row><entry>lcg-info-dynamic-scheduler-pbs</entry><entry>2.4.6-1</entry><entry>noarch</entry></row>
+</tbody>
+</tgroup>
+</table>
+</para>
+
+<para>
+The list of packages for the CREAM clients is the following:
+<table frame="all">
+<tgroup cols='3'>
+<thead>
+    <row><entry>Package</entry><entry>Version</entry><entry>Arch</entry></row>
+</thead>
+<tbody>
+    <row><entry>glite-ce-cream-cli</entry><entry>1.15.4-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-ce-cream-client-api-c</entry><entry>1.15.5-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-ce-cream-client-devel</entry><entry>1.15.5-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-jdl-api-cpp</entry><entry>3.4.4-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-jdl-api-cpp-devel</entry><entry>3.4.4-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-jdl-api-cpp-doc</entry><entry>3.4.4-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-wms-utils-classad</entry><entry>3.4.3-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-wms-utils-classad-devel</entry><entry>3.4.3-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-wms-utils-exception</entry><entry>3.4.3-1</entry><entry>x86_64</entry></row>
+    <row><entry>glite-wms-utils-exception-devel</entry><entry>3.4.3-1</entry><entry>x86_64</entry></row>
+    <row><entry>log4cpp</entry><entry>1.0.13-1</entry><entry>x86_64</entry></row>
+    <row><entry>log4cpp-devel</entry><entry>1.0.13-1</entry><entry>x86_64</entry></row>
+</tbody>
+</tgroup>
+</table>
+</para>
+
+<para>
+The installation and configuration of the CREAM CE site is certified with the puppet
+<ulink url="https://forge.puppet.com/infnpd/creamce">module</ulink> version 0.0.16 or greater.
+</para>
+</section><!-- end of R_1_16_6 -->
+
+</chapter>
+
