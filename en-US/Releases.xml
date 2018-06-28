@@ -151,6 +151,54 @@ The list of packages for the CREAM clients is the following:
 The installation and configuration of the CREAM CE site is certified with the puppet
 <ulink url="https://forge.puppet.com/infnpd/creamce">module</ulink> version 0.0.16 or greater.
 </para>
+
+<para>
+The supported batch systems are:
+<table frame="all">
+<tgroup cols='2'>
+<thead>
+    <row><entry>Batch system</entry><entry>Version</entry></row>
+</thead>
+<tbody>
+    <row><entry>TORQUE</entry><entry>4.2.10</entry></row>
+    <row><entry>SLURM</entry><entry>16.05.10</entry></row>
+    <row><entry>Htcondor</entry><entry>8.6.3</entry></row>
+    <row><entry>LSF</entry><entry>7.0</entry></row>
+    <row><entry>GridEngine</entry><entry>6.2</entry></row>
+</tbody>
+</tgroup>
+</table>
+</para>
+
+<para>
+The fixed issues are:
+<itemizedlist>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=106384">#106384</ulink></para></listitem>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=122974">#122974</ulink></para></listitem>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=124034">#124034</ulink></para></listitem>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=124404">#124404</ulink></para></listitem>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=127020">#127020</ulink></para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+The known issues are:
+<itemizedlist>
+    <listitem><para>The CREAM UI requires classads libraries up to version 8.4.11,
+    it does not work with versions 8.6.* </para></listitem>
+    <listitem><para>GridEngine is partially supported, the infoprovider does not publish informationa 
+    about acceleratore devices.</para></listitem>
+    <listitem><para>The puppet agent may report parsing errors. </para></listitem>
+    <listitem><para>If HTCondor is the batch system adopted, the HTCondor services on the computing element 
+    must be restarted after the installation of the CREAM service. </para></listitem>
+</itemizedlist>
+</para>
+
 </section><!-- end of R_1_16_6 -->
 
 </chapter>
