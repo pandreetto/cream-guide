@@ -9,7 +9,7 @@
 <para>
 The requirements for a basic installation of a CREAM site are:
 <itemizedlist>
-    <listitem><para>A system based on Cent OS version 7 or compatibile distribution.</para></listitem>
+    <listitem><para>Scientific Linux 6, Cent OS version 7 or compatibile distributions.</para></listitem>
     <listitem><para>The UMD4 extension as described in the UMD 
     <ulink url="http://repository.egi.eu/category/umd_releases/distribution/umd-4/">guide</ulink></para></listitem>
 </itemizedlist>
@@ -80,13 +80,16 @@ system it installs them.
 <title>Example</title>
 <para>
 This section illustrate an example of installation of a CREAM site by means of a standalone execution of puppet.
-In the following examples the FQDN of the CREAM site is myhost.mydomain.
+In the following examples the FQDN of the CREAM CE is myhost.mydomain.
 </para>
 <para>
 The required steps are:
 <itemizedlist>
     <listitem><para>Installation of the packages for puppet:
     <screen>yum -y install puppet</screen></para></listitem>
+    <listitem><para>Verification of the puppet environment:
+    <screen>facter | grep -E 'hostname|fqdn'</screen></para><para>If the FQDN of the host is not correctly
+    resolved it is necessary to specify the parameter <literal>creamce::host</literal></para></listitem>
     <listitem><para>Installation of the CREAM CE module for puppet:
     <screen>puppet module install infnpd-creamce</screen></para></listitem>
     <listitem><para>Creation of the required directories:
@@ -231,6 +234,8 @@ creamce::se_table :
 </itemizedlist>
 </para>
 </section><!-- end of Example_standalone -->
+
+<!-- TODO selinux: https://ggus.eu/index.php?mode=ticket_info&ticket_id=129967 -->
 
 <!-- section id="">
 <title></title>

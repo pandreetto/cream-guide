@@ -342,7 +342,8 @@ The hardware table contains any information about the resources of the site; the
 <section id="Software_table">
 <title>Software table</title>
 <para>
-The software table is a hash with the following structure:
+The software table contains any information about the applications installed in the worker nodes; the parameter to be
+used is <literal>creamce::software_table</literal>. The software table is a hash with the following structure:
 <itemizedlist>
     <listitem><para>the key of an entry in the table is the tag assigned to the software installed on the machines
     (see GLUE2 application environment); tags are used as a reference (<literal>ce_runtimeenv</literal>) in the
@@ -593,8 +594,7 @@ for definitions are:
         account, default false, just one administrator account is supported. The first user in the pool account, or 
         the static user if it is the case, is selected for publishing information about VO tags.</para></listitem>
         <listitem><para><literal>accounts</literal> (list): The list of SLURM accounts associated with this set of
-        users, the parameter is <literal>mandatory</literal> if <literal>slurm::config_accounting</literal>
-        is set to true</para></listitem>
+        users, further details can be found in the SLURM specific section</para></listitem>
     </itemizedlist>
     A pool account can be defined in two different ways. If the user IDs are consecutive the parameters required are:
     <itemizedlist>
@@ -691,11 +691,6 @@ creamce::vo_table :
 * **creamce::cron_deny_extras** (_list_): Extra items to be inserted into the ban list for cron, default empty list
 * **creamce::sudo_logfile** (_string_): The path of the log file for sudo, default empty string (log on syslog)
 
-* **creamce::repo_urls** (_list_): The list of URL for downloading the CREAM softare repo-file, default empty list 
-(manual installation required)
-* **creamce::rpm_key_urls** (_list_): The list of URL for downloading the GnuPG public key file used to verify the packages, 
-default empty list (manual installation required)
-
 -->
 
 <section id="CREAM_TORQUE">
@@ -729,10 +724,20 @@ Other configuration parameters for TORQUE are:
 <para>
 The SLURM cluster must be install before the deployment of CREAM, there's no support in the CREAM CE puppet module for
 the deployment of SLURM. The module provides an experimental feature for configuring SLURM users and accounts if the
-accounting is enabled in SLURM. The YAML parameter which enables the experimental feature is
-<literal>slurm::config_accounting</literal>, the default value is false. If it is set to true each user of the pool
-account is replicated in the SLURM accounting system. The list of SLURM accounts associated to the new user is specified
-by the parameter <literal>accounts</literal> of the <literal>users</literal> definition of the VO table.
+<ulink url="https://slurm.schedmd.com/accounting.html">accounting</ulink> subsystem is enabled in SLURM.
+The YAML parameter which enables the experimental feature is <literal>slurm::config_accounting</literal>, the default
+value is false. If it is set to true each user of the pool account is replicated in the SLURM accounting subsystem.
+The site administrator can associate to the any replicated user one or more SLURM accounts in two different ways:
+<itemizedlist>
+    <listitem><para>Specifying a list of accounts already created in SLURM. The list of SLURM accounts associated to
+    the new user is specified by the parameter <literal>accounts</literal> of the <literal>users</literal> definition
+    of the VO table; the parameter is mandatory in this case.</para></listitem>
+    <listitem><para>Delegating the creation of the SLURM accounts to the puppet module. The module creates a SLURM
+    account for each VO and a SLURM sub-account for each group in a given VO. The parameter to be set for enabling
+    the automatic creation of account is <literal>slurm::standard_accounts</literal>, its default value is false.
+    </para></listitem>
+</itemizedlist>
+
 </para>
 </section><!-- end of CREAM_SLURM -->
 
