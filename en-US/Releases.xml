@@ -4,6 +4,77 @@
 <chapter id="Releases">
 <title>Releases</title>
 
+
+<section id="R_1_16_7">
+<title>Release 1.16.7</title>
+<para>
+The changes delivered with this release are:
+<itemizedlist>
+    <listitem><para>Compatibility with latest versions of Bouncycastle, CAnL and VOMS</para></listitem>
+    <listitem><para>Minor fixes in info-providers</para></listitem>
+    <listitem><para>New version of BLAH on SL6</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+The list of packages for the CREAM services on CentOS 7 is the following:
+<table frame="all">
+<tgroup cols='3'>
+<thead>
+    <row><entry>Package</entry><entry>Version</entry><entry>Arch</entry></row>
+</thead>
+<tbody>
+    <row><entry>glite-ce-common-java</entry><entry>1.16.5-2</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-common-java-doc</entry><entry>1.16.5-2</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream</entry><entry>1.16.5-4</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-api-java</entry><entry>1.16.6-3</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-core</entry><entry>1.16.5-4</entry><entry>noarch</entry></row>
+    <row><entry>info-dynamic-scheduler-slurm</entry><entry>1.0.5-1</entry><entry>noarch</entry></row>
+</tbody>
+</tgroup>
+</table>
+</para>
+
+<para>
+The list of packages for the CREAM services on Scientific Linux 6 is the following:
+<table frame="all">
+<tgroup cols='3'>
+<thead>
+    <row><entry>Package</entry><entry>Version</entry><entry>Arch</entry></row>
+</thead>
+<tbody>
+    <row><entry>BLAH</entry><entry>1.22.2-1</entry><entry>x86_64</entry></row>
+    <row><entry>BLAH-debuginfo</entry><entry>1.22.2-1</entry><entry>x86_64</entry></row>
+    <row><entry>canl-java-tomcat</entry><entry>0.1.19-1</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-common-java</entry><entry>1.16.5-2</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-common-java-doc</entry><entry>1.16.5-2</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream</entry><entry>1.16.5-4</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-api-java</entry><entry>1.16.6-3</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-core</entry><entry>1.16.5-4</entry><entry>noarch</entry></row>
+    <row><entry>info-dynamic-scheduler-lsf</entry><entry>2.3.8-1</entry><entry>noarch</entry></row>
+    <row><entry>info-dynamic-scheduler-lsf-btools</entry><entry>2.3.8-1</entry><entry>noarch</entry></row>
+    <row><entry>info-dynamic-scheduler-slurm</entry><entry>1.0.5-1</entry><entry>noarch</entry></row>
+    <row><entry>lcg-info-dynamic-scheduler-condor</entry><entry>1.1-1</entry><entry>noarch</entry></row>
+    <row><entry>lcg-info-dynamic-scheduler-pbs</entry><entry>2.4.6-1</entry><entry>noarch</entry></row>
+</tbody>
+</tgroup>
+</table>
+</para>
+
+<para>
+The installation and configuration of the CREAM CE site is certified with the puppet
+<ulink url="https://forge.puppet.com/infnpd/creamce">module</ulink> version 0.1.1 or greater.
+YAIM is no more supported on Scientific Linux 6, even if the current release is still
+compatible with the latest release of the deprecated framework.
+</para>
+
+</section><!-- end of R_1_16_7 -->
+
+
+
+
+
+
 <section id="R_1_16_6">
 <title>Release 1.16.6</title>
 <para>
