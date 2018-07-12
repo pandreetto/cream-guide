@@ -14,7 +14,21 @@ The changes delivered with this release are:
     <listitem><para>Minor fixes in info-providers</para></listitem>
     <listitem><para>New version of BLAH on SL6</para></listitem>
 </itemizedlist>
+The fixed issues are:
+<itemizedlist>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=106384">#106384</ulink></para></listitem>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=122974">#122974</ulink></para></listitem>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=124404">#124404</ulink></para></listitem>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=127020">#127020</ulink></para></listitem>
+    <listitem><para>GGUS-Ticket-ID: 
+    <ulink url="https://ggus.eu/index.php?mode=ticket_info&ticket_id=133522">#133522</ulink></para></listitem>
+</itemizedlist>
 </para>
+
 
 <para>
 The list of packages for the CREAM services on CentOS 7 is the following:
