@@ -8,12 +8,10 @@
 <section id="R_1_16_7">
 <title>Release 1.16.7</title>
 <para>
-The changes delivered with this release are:
-<itemizedlist>
-    <listitem><para>Compatibility with latest versions of Bouncycastle, CAnL and VOMS</para></listitem>
-    <listitem><para>Minor fixes in info-providers</para></listitem>
-    <listitem><para>New version of BLAH on SL6</para></listitem>
-</itemizedlist>
+The current release of the CREAM service is fully compatible with the latest version of Bouncycastle,
+CAnL and VOMS published in EPEL.
+</para>
+<para>
 The fixed issues are:
 <itemizedlist>
     <listitem><para>GGUS-Ticket-ID: 
@@ -42,9 +40,9 @@ The list of packages for the CREAM services on CentOS 7 is the following:
     <row><entry>BLAH-debuginfo</entry><entry>1.22.3-1</entry><entry>x86_64</entry></row>
     <row><entry>glite-ce-common-java</entry><entry>1.16.5-2</entry><entry>noarch</entry></row>
     <row><entry>glite-ce-common-java-doc</entry><entry>1.16.5-2</entry><entry>noarch</entry></row>
-    <row><entry>glite-ce-cream</entry><entry>1.16.5-4</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream</entry><entry>1.16.5-5</entry><entry>noarch</entry></row>
     <row><entry>glite-ce-cream-api-java</entry><entry>1.16.6-3</entry><entry>noarch</entry></row>
-    <row><entry>glite-ce-cream-core</entry><entry>1.16.5-4</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-core</entry><entry>1.16.5-5</entry><entry>noarch</entry></row>
     <row><entry>glite-ce-cream-utils</entry><entry>1.3.7-1</entry><entry>x86_64</entry></row>
     <row><entry>info-dynamic-scheduler-slurm</entry><entry>1.0.5-1</entry><entry>noarch</entry></row>
 </tbody>
@@ -60,14 +58,14 @@ The list of packages for the CREAM services on Scientific Linux 6 is the followi
     <row><entry>Package</entry><entry>Version</entry><entry>Arch</entry></row>
 </thead>
 <tbody>
+    <row><entry>canl-java-tomcat</entry><entry>0.1.19-2</entry><entry>noarch</entry></row>
     <row><entry>glite-ce-blahp</entry><entry>1.22.3-1</entry><entry>x86_64</entry></row>
     <row><entry>glite-ce-blahp-debuginfo</entry><entry>1.22.3-1</entry><entry>x86_64</entry></row>
-    <row><entry>canl-java-tomcat</entry><entry>0.1.19-1</entry><entry>noarch</entry></row>
     <row><entry>glite-ce-common-java</entry><entry>1.16.5-2</entry><entry>noarch</entry></row>
     <row><entry>glite-ce-common-java-doc</entry><entry>1.16.5-2</entry><entry>noarch</entry></row>
-    <row><entry>glite-ce-cream</entry><entry>1.16.5-4</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream</entry><entry>1.16.5-5</entry><entry>noarch</entry></row>
     <row><entry>glite-ce-cream-api-java</entry><entry>1.16.6-3</entry><entry>noarch</entry></row>
-    <row><entry>glite-ce-cream-core</entry><entry>1.16.5-4</entry><entry>noarch</entry></row>
+    <row><entry>glite-ce-cream-core</entry><entry>1.16.5-5</entry><entry>noarch</entry></row>
     <row><entry>glite-ce-cream-utils</entry><entry>1.3.7-1</entry><entry>x86_64</entry></row>
     <row><entry>info-dynamic-scheduler-lsf</entry><entry>2.3.8-1</entry><entry>noarch</entry></row>
     <row><entry>info-dynamic-scheduler-lsf-btools</entry><entry>2.3.8-1</entry><entry>noarch</entry></row>
