@@ -588,7 +588,7 @@ for definitions are:
         <listitem><para><literal>secondary_fqan</literal> (list): The list of the secondary VOMS Fully Qualified
         Attribute Names associated with the user of the pool account. The items in the list are used to calculate the
         secondary groups of the user. The parameter is optional.</para></listitem>
-        <listitem><para><literal>create_user</literal> (boolean): True if the creation of the user is disabled for the
+        <listitem><para><literal>create_user</literal> (boolean): False if the creation of the user is disabled for the
         current pool account, default is True</para></listitem>
         <listitem><para><literal>pub_admin</literal> (boolean): True if the pool account is the defined administrator
         account, default false, just one administrator account is supported. The first user in the pool account, or 

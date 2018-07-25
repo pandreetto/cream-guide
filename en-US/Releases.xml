@@ -80,20 +80,30 @@ The list of packages for the CREAM services on Scientific Linux 6 is the followi
 </para>
 
 <para>
+The basic requirement for the installation is UMD 4.7.1.
 The installation and configuration of the CREAM CE site is certified with the puppet
 <ulink url="https://forge.puppet.com/infnpd/creamce">module</ulink> version 0.1.1 or greater.
-YAIM is no more supported on Scientific Linux 6, even if the current release is still
-compatible with the latest release of the deprecated framework.
+YAIM is no more supported on Scientific Linux 6 and its usage must be considered at "your own risk".
 </para>
 
 <para>
+The update process on Scientific Linux 6 requires the following additional steps:
+<itemizedlist>
+    <listitem><para>After the update it is necessary to remove the packages <emphasis>bouncycastle-mail</emphasis>
+    and <emphasis>bouncycastle</emphasis> (version 1.46).</para></listitem>
+    <listitem><para>Any broken link in <emphasis>/var/lib/tomcat6/webapps/ce-cream/WEB-INF/lib</emphasis>
+    and <emphasis>/usr/share/tomcat6/lib</emphasis> must be manually deleted.</para></listitem>
+</itemizedlist>
+</para>
+
+<!-- para>
 The basic requirement for the installation is UMD 4.7.0; the YUM repositories are available both for
 <ulink url="http://igi-01.pd.infn.it/mrepo/dist/CREAM/repos/sl6/cream-updates.repo">Scientific
 Linux 6</ulink> and
 <ulink url="http://igi-01.pd.infn.it/mrepo/dist/CREAM/repos/centos7/cream-updates.repo">CentOS 7</ulink>.
 The GPG public key is available 
 <ulink url="http://igi-01.pd.infn.it/mrepo/dist/RPM-GPG-KEY-cream-dist">here</ulink>.
-</para>
+</para -->
 
 </section><!-- end of R_1_16_7 -->
 
