@@ -80,7 +80,8 @@ The list of packages for the CREAM services on Scientific Linux 6 is the followi
 </para>
 
 <para>
-The basic requirement for the installation is UMD 4.7.1.
+The basic requirement for the installation is UMD 4.7.1. The java application requires Java SE 8
+(OpenJDK 1.8.0 or later). 
 The installation and configuration of the CREAM CE site is certified with the puppet
 <ulink url="https://forge.puppet.com/infnpd/creamce">module</ulink> version 0.1.1 or greater.
 YAIM is no more supported on Scientific Linux 6 and its usage must be considered at "your own risk".
@@ -94,6 +95,9 @@ The update process on Scientific Linux 6 requires the following additional steps
     <listitem><para>Any broken link in <emphasis>/var/lib/tomcat6/webapps/ce-cream/WEB-INF/lib</emphasis>
     and <emphasis>/usr/share/tomcat6/lib</emphasis> must be manually deleted.</para></listitem>
 </itemizedlist>
+If YAIM is used for the configuration it is necessary to create a symbolic link from 
+<emphasis>/usr/share/java/bcprov-1.58.jar</emphasis> into <emphasis>/usr/share/java/bcprov.jar</emphasis> and
+re-running the configurator.
 </para>
 
 <!-- para>
