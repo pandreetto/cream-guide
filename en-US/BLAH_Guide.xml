@@ -1465,4 +1465,36 @@ It is possible to configure some parameter in the blah.config file:
 </para>
 </section><!-- end of NewParser -->
 
+<section id="BLAHAccounting">
+<title>BLAH Accounting</title>
+<para>
+Log records are written in a daily file specified as <screen>&lt;prefix&gt;-YYYMMDD</screen>
+where <literal>&lt;prefix&gt;</literal> is specified in blah.config:
+<screen>BLAHPD_ACCOUNTING_INFO_LOG=/var/log/accounting/blahp.log</screen>
+</para>
+<para>
+The format of the record is:
+<screen>"&lt;field&gt;=&lt;value&gt;" [&lt;SP&gt; "&lt;field&gt;=&lt;value&gt;" ...] &lt;LF&gt;</screen>
+thus all values are assumed to have no double quotes inside.
+</para>
+<para>
+The fields are:
+<itemizedlist>
+    <listitem><para><literal>timestamp</literal>: record creation date (~ lrms submission time)</para></listitem>
+    <listitem><para><literal>userDN</literal>: user's certificate distinguished name</para></listitem>
+    <listitem><para><literal>userFQAN</literal>: user's certificate Fully Qualified Attribute Names (i.e. VO and roles)
+    repeated, one per FQAN</para></listitem>
+    <listitem><para><literal>ceID</literal>: Computing Element's ID as appearing in the Glue schema</para></listitem>
+    <listitem><para><literal>jobID</literal>: the Grid job ID (i.e. the one returned to the user by the CE)</para></listitem>
+    <listitem><para><literal>lrmsID</literal>: the ID of the job in the batch system</para></listitem>
+    <listitem><para><literal>localUser</literal>: numeric uid of the local account mapped to the remote user</para></listitem>
+    <listitem><para><literal>clientId</literal>: a job identifier (arbirtary string)
+    provided by the CE at submission time</para></listitem>
+</itemizedlist>
+</para>
+<para>
+Accounting can be disabled in BLAH by commenting out the BLAHPD_ACCOUNTING_INFO_LOG line in blah.config.
+</para>
+</section><!-- end of BLAHAccounting -->
+
 </chapter>
